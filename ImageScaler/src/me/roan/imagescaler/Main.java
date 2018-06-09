@@ -1,6 +1,8 @@
 package me.roan.imagescaler;
 
+import java.awt.BorderLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,9 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.UIManager;
 
 public class Main {
 	
@@ -20,27 +30,56 @@ public class Main {
 	private static double scale = 0.5D;
 	private static boolean overwrite = false;
 	private static ScalingMode mode = ScalingMode.QUALITY;
+	private static JFileChooser chooser;
 
 	public static void main(String[] args){
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.showOpenDialog(null);
-		inputDir = chooser.getSelectedFile();
-		for(File fn : getImages(inputDir)){
-			System.out.println(fn.getName());
-			try {
-				scale(fn);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable t) {
 		}
+		chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		
 		JFrame frame = new JFrame("Image Scaler");
 		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
+		JPanel input = new JPanel();
+		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
 		
+		JPanel output = new JPanel();
+		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
+		
+		JPanel options = new JPanel(new BorderLayout());
+		options.setBorder(BorderFactory.createTitledBorder("Options"));
+		JCheckBox over = new JCheckBox("Overwrite existing files?", overwrite);
+		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
+		mode.setSelectedItem(Main.mode);
+		options.add(over, BorderLayout.PAGE_START);
+		options.add(new JLabel("Scaling algorithm: "), BorderLayout.LINE_START);
+		options.add(mode, BorderLayout.CENTER);
+		
+		JPanel progress = new JPanel(new BorderLayout());
+		progress.setBorder(BorderFactory.createTitledBorder("Progress"));
+		JProgressBar bar = new JProgressBar();
+		progress.add(bar, BorderLayout.CENTER);
+		
+		JPanel controls = new JPanel(new GridLayout(1, 2, 5, 0));
+		controls.setBorder(BorderFactory.createTitledBorder("Controls"));
+		JButton exit = new JButton("Exit");
+		JButton start = new JButton("Start");
+		controls.add(start);
+		controls.add(exit);
+		
+		panel.add(input);
+		panel.add(output);
+		panel.add(options);
+		panel.add(progress);
+		panel.add(controls);
+		
+		frame.add(panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 	
 	private static final void scale(File file) throws IOException{
