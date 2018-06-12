@@ -133,6 +133,7 @@ public class Main {
 		JButton start = new JButton("Start");
 		controls.add(start);
 		controls.add(pause);
+		pause.setEnabled(false);
 		pause.addActionListener((e)->{
 			
 		});
@@ -142,7 +143,17 @@ public class Main {
 				JOptionPane.showMessageDialog(frame, "Input Directory does not exist!", "Image Scaler", JOptionPane.ERROR_MESSAGE);
 			}else{
 				outputDir = new File(lout.getText());
-				//TODO disable fields
+				selin.setEnabled(false);
+				lin.setEnabled(false);
+				selout.setEnabled(false);
+				lout.setEnabled(false);
+				over.setEnabled(false);
+				samefolder.setEnabled(false);
+				mode.setEnabled(false);
+				scalef.setEnabled(false);
+				threads.setEnabled(false);
+				start.setEnabled(false);
+				pause.setEnabled(true);
 				final int total = Worker.prepare();
 				bar.setMaximum(total);
 				final Object lock = new Object();
@@ -152,6 +163,19 @@ public class Main {
 						bar.setValue(done);
 						ptext.setText(done + "/" + total);
 						progress.repaint();
+						if(done == total){
+							selin.setEnabled(true);
+							lin.setEnabled(true);
+							selout.setEnabled(true);
+							lout.setEnabled(true);
+							over.setEnabled(true);
+							samefolder.setEnabled(true);
+							mode.setEnabled(true);
+							scalef.setEnabled(true);
+							threads.setEnabled(true);
+							start.setEnabled(true);
+							pause.setEnabled(false);
+						}
 					}
 				});
 			}
