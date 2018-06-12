@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
@@ -40,7 +41,9 @@ public class Main {
 	protected static ScalingMode mode = ScalingMode.QUALITY;
 	protected static JFileChooser chooser;
 	protected static int threads = Runtime.getRuntime().availableProcessors();
-	protected static String regex = ".+@2x\\..*";
+	protected static Pattern regex = Pattern.compile(".+@2x\\..*");
+	protected static Pattern renameRegex = Pattern.compile("@2x");
+	protected static String renameReplace = "";
 
 	public static void main(String[] args){
 		try {
@@ -103,18 +106,28 @@ public class Main {
 		JCheckBox over = new JCheckBox("Overwrite existing files?", overwrite);
 		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
 		mode.setSelectedItem(Main.mode);
-		JPanel labels = new JPanel(new GridLayout(4, 1, 0, 5));
-		JPanel sels = new JPanel(new GridLayout(4, 1, 0, 5));
+		JPanel labels = new JPanel(new GridLayout(5, 1, 0, 5));
+		JPanel sels = new JPanel(new GridLayout(5, 1, 0, 5));
 		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
 		JSpinner scalef = new JSpinner(new SpinnerNumberModel(Main.scale, 0, Short.MAX_VALUE, 0.01));
-		JTextField regex = new JTextField(Main.regex);
+		JTextField regex = new JTextField(Main.regex.pattern());
+		regex.setToolTipText("Matches the files that will be rescaled.");
+		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
+		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
+		JTextField renameReplace = new JTextField(Main.renameReplace);
+		renameReplace.setToolTipText("The string to use as a replacement for the regions found by the regex.");
+		JPanel rename = new JPanel(new GridLayout(1, 2, 4, 0));
+		rename.add(renameMatch);
+		rename.add(renameReplace);
 		options.add(over, BorderLayout.PAGE_START);
 		labels.add(new JLabel("Scaling algorithm: "));
 		labels.add(new JLabel("File name regex: "));
+		labels.add(new JLabel("File rename regex: "));
 		labels.add(new JLabel("Scaling factor: "));
 		labels.add(new JLabel("Threads: "));
 		sels.add(mode);
 		sels.add(regex);
+		sels.add(rename);
 		sels.add(scalef);
 		sels.add(threads);
 		options.add(labels, BorderLayout.LINE_START);
@@ -156,7 +169,21 @@ public class Main {
 				JOptionPane.showMessageDialog(frame, "Input Directory does not exist!", "Image Scaler", JOptionPane.ERROR_MESSAGE);
 			}else{
 				outputDir = new File(lout.getText());
-				Main.regex = regex.getText();
+				try{
+					Main.regex = Pattern.compile(regex.getText());
+				}catch(PatternSyntaxException e1){
+					JOptionPane.showMessageDialog(frame, "Invalid file name regex: " + e1.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				try{
+					Main.renameRegex = Pattern.compile(renameMatch.getText());
+				}catch(PatternSyntaxException e1){
+					JOptionPane.showMessageDialog(frame, "Invalid file rename regex: " + e1.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				Main.renameReplace = renameReplace.getText();
+				renameReplace.setEnabled(false);
+				renameMatch.setEnabled(false);
 				selin.setEnabled(false);
 				lin.setEnabled(false);
 				selout.setEnabled(false);
@@ -169,14 +196,10 @@ public class Main {
 				start.setEnabled(false);
 				regex.setEnabled(false);
 				pause.setEnabled(true);
-				int count = 0;
-				try{
-					count = Worker.prepare();
-				}catch(PatternSyntaxException e1){
-					JOptionPane.showMessageDialog(frame, "Invalid file name regex: " + e1.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
-					count = -1;
-				}
-				if(count <= 0){
+				final int total = Worker.prepare();
+				if(total == 0){
+					renameReplace.setEnabled(true);
+					renameMatch.setEnabled(true);
 					selin.setEnabled(true);
 					lin.setEnabled(true);
 					selout.setEnabled(true);
@@ -189,14 +212,11 @@ public class Main {
 					start.setEnabled(true);
 					regex.setEnabled(true);
 					pause.setEnabled(false);
-					if(count == 0){
-						ptext.setText("No files to convert");
-						bar.setMaximum(1);
-						bar.setValue(1);
-					}
+					ptext.setText("No files to rescale");
+					bar.setMaximum(1);
+					bar.setValue(1);
 					return;
 				}
-				final int total = count;
 				bar.setMaximum(total);
 				final Object lock = new Object();
 				Worker.start(()->{
@@ -206,6 +226,8 @@ public class Main {
 						ptext.setText(done + "/" + total);
 						progress.repaint();
 						if(done == total){
+							renameReplace.setEnabled(true);
+							renameMatch.setEnabled(true);
 							selin.setEnabled(true);
 							lin.setEnabled(true);
 							selout.setEnabled(true);

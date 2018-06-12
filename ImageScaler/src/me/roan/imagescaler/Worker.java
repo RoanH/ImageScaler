@@ -66,7 +66,7 @@ public class Worker {
 		String name = file.getAbsolutePath().replace(Main.inputDir.getAbsolutePath(), "");
 		int dot = name.lastIndexOf('.');
 		String ext = name.substring(dot + 1);
-		name = name.substring(name.startsWith(File.separator) ? 1 : 0, dot - 3) + name.substring(dot);
+		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
 		out.mkdirs();
 		out.createNewFile();
@@ -90,7 +90,7 @@ public class Worker {
 		for(File file : dir.listFiles()){
 			if(file.isDirectory()){
 				list.addAll(getImages(file));
-			}else if(file.getName().matches(Main.regex)){
+			}else if(Main.regex.matcher(file.getName()).matches()){
 				list.add(file);
 			}
 		}
