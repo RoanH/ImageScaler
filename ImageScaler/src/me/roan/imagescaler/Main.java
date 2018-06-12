@@ -1,16 +1,10 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.PatternSyntaxException;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -37,6 +31,7 @@ public class Main {
 	protected static ScalingMode mode = ScalingMode.QUALITY;
 	protected static JFileChooser chooser;
 	protected static int threads = Runtime.getRuntime().availableProcessors();
+	protected static String regex = ".+@2x\\..*";
 
 	public static void main(String[] args){
 		try {
@@ -99,15 +94,18 @@ public class Main {
 		JCheckBox over = new JCheckBox("Overwrite existing files?", overwrite);
 		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
 		mode.setSelectedItem(Main.mode);
-		JPanel labels = new JPanel(new GridLayout(3, 1, 0, 5));
-		JPanel sels = new JPanel(new GridLayout(3, 1, 0, 5));
+		JPanel labels = new JPanel(new GridLayout(4, 1, 0, 5));
+		JPanel sels = new JPanel(new GridLayout(4, 1, 0, 5));
 		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
 		JSpinner scalef = new JSpinner(new SpinnerNumberModel(Main.scale, 0, Short.MAX_VALUE, 0.01));
+		JTextField regex = new JTextField(Main.regex);
 		options.add(over, BorderLayout.PAGE_START);
 		labels.add(new JLabel("Scaling algorithm: "));
+		labels.add(new JLabel("File name regex: "));
 		labels.add(new JLabel("Scaling factor: "));
 		labels.add(new JLabel("Threads: "));
 		sels.add(mode);
+		sels.add(regex);
 		sels.add(scalef);
 		sels.add(threads);
 		options.add(labels, BorderLayout.LINE_START);
@@ -135,7 +133,13 @@ public class Main {
 		controls.add(pause);
 		pause.setEnabled(false);
 		pause.addActionListener((e)->{
-			
+			if(Worker.running){
+				Worker.running = false;
+				pause.setText("Resume");
+			}else{
+				Worker.running = true;
+				pause.setText("Pause");
+			}
 		});
 		start.addActionListener((e)->{
 			inputDir = new File(lin.getText());
@@ -143,6 +147,7 @@ public class Main {
 				JOptionPane.showMessageDialog(frame, "Input Directory does not exist!", "Image Scaler", JOptionPane.ERROR_MESSAGE);
 			}else{
 				outputDir = new File(lout.getText());
+				Main.regex = regex.getText();
 				selin.setEnabled(false);
 				lin.setEnabled(false);
 				selout.setEnabled(false);
@@ -153,8 +158,36 @@ public class Main {
 				scalef.setEnabled(false);
 				threads.setEnabled(false);
 				start.setEnabled(false);
+				regex.setEnabled(false);
 				pause.setEnabled(true);
-				final int total = Worker.prepare();
+				int count = 0;
+				try{
+					count = Worker.prepare();
+				}catch(PatternSyntaxException e1){
+					JOptionPane.showMessageDialog(frame, "Invalid file name regex: " + e1.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
+					count = -1;
+				}
+				if(count <= 0){
+					selin.setEnabled(true);
+					lin.setEnabled(true);
+					selout.setEnabled(true);
+					lout.setEnabled(true);
+					over.setEnabled(true);
+					samefolder.setEnabled(true);
+					mode.setEnabled(true);
+					scalef.setEnabled(true);
+					threads.setEnabled(true);
+					start.setEnabled(true);
+					regex.setEnabled(true);
+					pause.setEnabled(false);
+					if(count == 0){
+						ptext.setText("No files to convert");
+						bar.setMaximum(1);
+						bar.setValue(1);
+					}
+					return;
+				}
+				final int total = count;
 				bar.setMaximum(total);
 				final Object lock = new Object();
 				Worker.start(()->{
@@ -174,6 +207,7 @@ public class Main {
 							scalef.setEnabled(true);
 							threads.setEnabled(true);
 							start.setEnabled(true);
+							regex.setEnabled(true);
 							pause.setEnabled(false);
 						}
 					}

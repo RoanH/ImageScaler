@@ -10,16 +10,17 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.PatternSyntaxException;
 
 import javax.imageio.ImageIO;
 
 public class Worker {
 	
 	protected static final AtomicInteger completed = new AtomicInteger(0);
-	protected static boolean running = false;
+	protected static volatile boolean running = false;
 	private static List<File> files;
 	
-	public static final int prepare(){
+	public static final int prepare() throws PatternSyntaxException{
 		files = getImages(Main.inputDir);
 		return files.size();
 	}
@@ -31,9 +32,9 @@ public class Worker {
 				
 		for(File img : files){
 			executor.submit(()->{
-				System.out.println("run");
 				while(!running){
 					try {
+						System.out.println("Wait");
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 					}
@@ -45,7 +46,9 @@ public class Worker {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				completed.incrementAndGet();
+				if(completed.incrementAndGet() == files.size()){
+					executor.shutdown();
+				}
 				listener.progress();
 			});
 		}
@@ -82,12 +85,12 @@ public class Worker {
 		return buffer;
 	}
 	
-	private static final List<File> getImages(File dir){
+	private static final List<File> getImages(File dir) throws PatternSyntaxException{
 		List<File> list = new ArrayList<File>();
 		for(File file : dir.listFiles()){
 			if(file.isDirectory()){
 				list.addAll(getImages(file));
-			}else if(file.getName().matches(".+@2x\\..*")){
+			}else if(file.getName().matches(Main.regex)){
 				list.add(file);
 			}
 		}
