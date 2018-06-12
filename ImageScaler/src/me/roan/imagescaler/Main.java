@@ -32,19 +32,60 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+/**
+ * Relatively simple program that rescales images
+ * in a folder that match a regex
+ * and writes them to some other folder.
+ * 
+ * @author Roan
+ */
 public class Main {
-	
-	protected static File outputDir = new File("test");
+	/**
+	 * The directory to write rescaled images to
+	 */
+	protected static File outputDir;
+	/**
+	 * The directory to search for images to rescale
+	 */
 	protected static File inputDir;
+	/**
+	 * The factor to scale the input images by
+	 */
 	protected static double scale = 0.5D;
+	/**
+	 * Whether or not to overwrite existing files
+	 */
 	protected static boolean overwrite = false;
+	/**
+	 * The scaling algorithm that is used
+	 */
 	protected static ScalingMode mode = ScalingMode.QUALITY;
+	/**
+	 * The file chooser that is used
+	 */
 	protected static JFileChooser chooser;
+	/**
+	 * Number of rescale threads to use
+	 */
 	protected static int threads = Runtime.getRuntime().availableProcessors();
+	/**
+	 * Regex used to match the files to convert
+	 */
 	protected static Pattern regex = Pattern.compile(".+@2x\\..*");
+	/**
+	 * Regex that is used on all file names to optionally modify them
+	 */
 	protected static Pattern renameRegex = Pattern.compile("@2x");
+	/**
+	 * Replacement string for file name parts
+	 * matched by the {@link #renameRegex} regex.
+	 */
 	protected static String renameReplace = "";
 
+	/**
+	 * Starts the program and shows the GUI
+	 * @param args No valid command line arguments
+	 */
 	public static void main(String[] args){
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -336,7 +377,7 @@ public class Main {
 	}
 	
 	/**
-	 * Checks the KeysPerSecond version to see
+	 * Checks the Image Scaler version to see
 	 * if we are running the latest version
 	 * @return The latest version
 	 */
