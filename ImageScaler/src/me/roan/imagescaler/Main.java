@@ -1,8 +1,17 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
@@ -215,12 +224,79 @@ public class Main {
 			}
 		});
 		
-		JPanel version = new JPanel(new GridLayout(2, 1, 5, 0));
+		JPanel version = new JPanel(new GridLayout(2, 1, 0, 2));
 		version.setBorder(BorderFactory.createTitledBorder("Information"));
-		JLabel links = new JLabel("forums - GitHub", SwingConstants.CENTER);
-		JLabel ver = new JLabel("Version 1.0, latest version /shrug", SwingConstants.CENTER);
+		JLabel ver = new JLabel("<html><center><i>Version: v1.0, latest version: <font color=gray>loading</font></i></center></html>", SwingConstants.CENTER);
+		version.add(ver);
+		new Thread(()->{
+			String v = checkVersion();//XXX the version number 
+			ver.setText("<html><center><i>Version: v1.0, latest version: " + (v == null ? "unknown :(" : v) + "</i></center></html>");
+		}, "Version Checker").start();
+		JPanel links = new JPanel(new GridLayout(1, 2, -2, 0));
+		JLabel forum = new JLabel("<html><font color=blue><u>Forums</u></font> -</html>", SwingConstants.RIGHT);
+		JLabel git = new JLabel("<html>- <font color=blue><u>GitHub</u></font></html>", SwingConstants.LEFT);
+		links.add(forum);
+		links.add(git);
 		version.add(links);
 		version.add(ver);
+		forum.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(Desktop.isDesktopSupported()){
+					try {
+						Desktop.getDesktop().browse(new URL("https://osu.ppy.sh/community/forums/topics/552405").toURI());
+					} catch (IOException | URISyntaxException e1) {
+						//pity
+					}
+				}
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+		});
+		git.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(Desktop.isDesktopSupported()){
+					try {
+						Desktop.getDesktop().browse(new URL("https://github.com/RoanH/ImageScaler").toURI());
+					} catch (IOException | URISyntaxException e1) {
+						//pity
+					}
+				}
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+		});
 		
 		panel.add(input);
 		panel.add(output);
@@ -235,5 +311,43 @@ public class Main {
 		frame.setSize(400, panel.getPreferredSize().height + frame.getInsets().top + frame.getInsets().bottom);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+	}
+	
+	/**
+	 * Checks the KeysPerSecond version to see
+	 * if we are running the latest version
+	 * @return The latest version
+	 */
+	private static final String checkVersion(){
+		try{ 			
+			HttpURLConnection con = (HttpURLConnection) new URL("https://api.github.com/repos/RoanH/ImageScaler/tags").openConnection(); 			
+			con.setRequestMethod("GET"); 		
+			con.setConnectTimeout(10000); 					   
+			BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream())); 	
+			String line = reader.readLine(); 		
+			reader.close(); 	
+			String[] versions = line.split("\"name\":\"v");
+			int max_main = 1;
+			int max_sub = 0;
+			String[] tmp;
+			for(int i = 1; i < versions.length; i++){
+				tmp = versions[i].split("\",\"")[0].split("\\.");
+				if(Integer.parseInt(tmp[0]) > max_main){
+					max_main = Integer.parseInt(tmp[0]);
+					max_sub = Integer.parseInt(tmp[1]);
+				}else if(Integer.parseInt(tmp[0]) < max_main){
+					continue;
+				}else{
+					if(Integer.parseInt(tmp[1]) > max_sub){
+						max_sub = Integer.parseInt(tmp[1]);
+					}
+				}
+			}
+			return "v" + max_main + "." + max_sub;
+		}catch(Exception e){ 	
+			return null;
+			//No Internet access or something else is wrong,
+			//No problem though since this isn't a critical function
+		}
 	}
 }
