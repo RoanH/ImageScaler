@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.PatternSyntaxException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 public class Worker {
 	
@@ -39,11 +40,10 @@ public class Worker {
 					} catch (InterruptedException e) {
 					}
 				}
-				//scale(img);
 				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+					scale(img);
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
 				}
 				if(completed.incrementAndGet() == files.size()){
