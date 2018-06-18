@@ -62,7 +62,6 @@ public class Worker {
 			executor.submit(()->{
 				while(!running){
 					try {
-						System.out.println("Wait");
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 					}
@@ -120,13 +119,18 @@ public class Worker {
 		
 		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
-		out.mkdirs();
-		out.createNewFile();
-		BufferedImage data = toBufferedImage(scaled);
-		ImageIO.write(data, ext, out);
-		img.flush();
-		scaled.flush();
-		data.flush();
+		if(Main.overwrite || !out.exists()){
+			BufferedImage img = ImageIO.read(file);
+			Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
+			System.out.println("new name: " + name);
+			out.mkdirs();
+			out.createNewFile();
+			BufferedImage data = toBufferedImage(scaled);
+			ImageIO.write(data, ext, out);
+			img.flush();
+			scaled.flush();
+			data.flush();
+		}
 	}
 	
 	/**
