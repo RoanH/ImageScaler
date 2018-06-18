@@ -5,7 +5,7 @@ Simple but powerful batch image rescaler.
 So a little while ago a friend of mine came up with the idea to write a program that would automatically create SD images for already exising HD (@2x) skin images.
 And now that program is done :D.
 
-The program itself looks like this:
+The program itself looks like this:    
 ![GUI](https://i.imgur.com/dYRt25h.png)
 
 By default it will look for all the files in the input folder that have a name than end with @2x and scale them down by a factor 2. It'll also remove the @2x part from the file name of the generated SD image. 
