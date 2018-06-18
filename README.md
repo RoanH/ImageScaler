@@ -21,5 +21,7 @@ And if you find any bugs or think of nice features feel free to report/request t
 All releases: [releases](https://github.com/RoanH/ImageScaler/releases)<br>
 GitHub repository: [here](https://github.com/RoanH/ImageScaler)
 
+Program icon by: [my name is hi](https://osu.ppy.sh/u/4738743)
+
 ## History
 Project development started: 9th of June, 2018.
