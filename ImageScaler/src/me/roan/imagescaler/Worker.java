@@ -102,7 +102,8 @@ public class Worker {
 		String name = file.getAbsolutePath().replace(Main.inputDir.getAbsolutePath(), "");
 		int dot = name.lastIndexOf('.');
 		String ext = name.substring(dot + 1);
-		
+		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
+		File out = new File(Main.outputDir, name);
 		
 		//BufferedImage img = ImageIO.read(file);
 		Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
@@ -111,16 +112,12 @@ public class Worker {
 		}
 		ImageReader reader = readers.next();
 		System.out.print(reader);
-		reader.setInput(ImageIO.createImageInputStream(file));
+		reader.setInput(file);
 		BufferedImage img = reader.read(0);
 		
 		
-		Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
 		
-		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
-		File out = new File(Main.outputDir, name);
 		if(Main.overwrite || !out.exists()){
-			BufferedImage img = ImageIO.read(file);
 			Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
 			System.out.println("new name: " + name);
 			out.mkdirs();
