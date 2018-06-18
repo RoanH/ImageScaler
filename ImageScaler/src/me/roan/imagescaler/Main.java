@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -96,6 +97,10 @@ public class Main {
 		chooser.setMultiSelectionEnabled(false);
 		
 		JFrame frame = new JFrame("Image Scaler");
+		try {
+			frame.setIconImage(ImageIO.read(ClassLoader.getSystemResource("icon.png")));
+		} catch (IOException e2) {
+		}
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
