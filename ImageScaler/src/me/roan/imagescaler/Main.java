@@ -72,7 +72,7 @@ public class Main {
 	/**
 	 * Regex used to match the files to convert
 	 */
-	protected static Pattern regex = Pattern.compile(".+@2x\\..*");
+	protected static Pattern regex = Pattern.compile(".+@2x\\.(png|jpe*g|PNG|JPE*G)");
 	/**
 	 * Regex that is used on all file names to optionally modify them
 	 */
