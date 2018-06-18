@@ -313,7 +313,7 @@ public class Main {
 			public void mouseClicked(MouseEvent e) {
 				if(Desktop.isDesktopSupported()){
 					try {
-						Desktop.getDesktop().browse(new URL("https://osu.ppy.sh/community/forums/topics/552405").toURI());
+						Desktop.getDesktop().browse(new URL("https://osu.ppy.sh/community/forums/topics/762684").toURI());
 					} catch (IOException | URISyntaxException e1) {
 						//pity
 					}
