@@ -152,10 +152,28 @@ public class Main {
 		JCheckBox over = new JCheckBox("Overwrite existing files?", overwrite);
 		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
 		mode.setSelectedItem(Main.mode);
-		JPanel labels = new JPanel(new GridLayout(5, 1, 0, 5));
-		JPanel sels = new JPanel(new GridLayout(5, 1, 0, 5));
-		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
+		JPanel labels = new JPanel(new GridLayout(2, 1, 0, 5));
+		JPanel sels = new JPanel(new GridLayout(2, 1, 0, 5));
 		JSpinner scalef = new JSpinner(new SpinnerNumberModel(Main.scale, 0, Short.MAX_VALUE, 0.01));
+		options.add(over, BorderLayout.PAGE_START);
+		labels.add(new JLabel("Scaling algorithm: "));
+		labels.add(new JLabel("Scaling factor: "));
+		sels.add(mode);
+		sels.add(scalef);
+		options.add(labels, BorderLayout.LINE_START);
+		options.add(sels, BorderLayout.CENTER);
+		over.addActionListener((e)->{
+			overwrite = over.isSelected();
+		});
+		mode.addActionListener((e)->{
+			Main.mode = (ScalingMode)mode.getSelectedItem();
+		});
+		
+		JPanel advoptions = new JPanel(new BorderLayout());
+		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
+		JPanel labelsadv = new JPanel(new GridLayout(3, 1, 0, 5));
+		JPanel selsadv = new JPanel(new GridLayout(3, 1, 0, 5));
+		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
 		JTextField regex = new JTextField(Main.regex.pattern());
 		regex.setToolTipText("Matches the files that will be rescaled.");
 		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
@@ -165,25 +183,14 @@ public class Main {
 		JPanel rename = new JPanel(new GridLayout(1, 2, 4, 0));
 		rename.add(renameMatch);
 		rename.add(renameReplace);
-		options.add(over, BorderLayout.PAGE_START);
-		labels.add(new JLabel("Scaling algorithm: "));
-		labels.add(new JLabel("File name regex: "));
-		labels.add(new JLabel("File rename regex: "));
-		labels.add(new JLabel("Scaling factor: "));
-		labels.add(new JLabel("Threads: "));
-		sels.add(mode);
-		sels.add(regex);
-		sels.add(rename);
-		sels.add(scalef);
-		sels.add(threads);
-		options.add(labels, BorderLayout.LINE_START);
-		options.add(sels, BorderLayout.CENTER);
-		over.addActionListener((e)->{
-			overwrite = over.isSelected();
-		});
-		mode.addActionListener((e)->{
-			Main.mode = (ScalingMode)mode.getSelectedItem();
-		});
+		labelsadv.add(new JLabel("File name regex: "));
+		labelsadv.add(new JLabel("File rename regex: "));
+		labelsadv.add(new JLabel("Threads: "));
+		selsadv.add(regex);
+		selsadv.add(rename);
+		selsadv.add(threads);
+		advoptions.add(labelsadv, BorderLayout.LINE_START);
+		advoptions.add(selsadv, BorderLayout.CENTER);
 		
 		JPanel progress = new JPanel(new BorderLayout());
 		progress.setBorder(BorderFactory.createTitledBorder("Progress"));
@@ -369,6 +376,7 @@ public class Main {
 		panel.add(input);
 		panel.add(output);
 		panel.add(options);
+		panel.add(advoptions);
 		panel.add(progress);
 		panel.add(controls);
 		panel.add(version);
