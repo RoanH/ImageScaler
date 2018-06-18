@@ -8,7 +8,7 @@ And now that program is done :D.
 The program itself looks like this:    
 ![GUI](https://i.imgur.com/dYRt25h.png)
 
-By default it will look for all the files in the input folder that have a name than end with @2x and scale them down by a factor 2. It'll also remove the @2x part from the file name of the generated SD image. 
+By default it will look for all the files in the input folder that have a name that ends with @2x and scale them down by a factor 2. It'll also remove the @2x part from the file name of the generated SD image. 
 However I decided to make all the filters and parameters configurable so you could actually also use this program to upscale or downscale a whole folder of images.
 
 Well I hope some of you find this program useful :)
