@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
 import javax.swing.JOptionPane;
 
 /**
@@ -104,26 +105,27 @@ public class Worker {
 		String ext = name.substring(dot + 1);
 		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
-		
-		//BufferedImage img = ImageIO.read(file);
-		Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
-		if(!readers.hasNext()){
-			throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
-		}
-		ImageReader reader = readers.next();
-		System.out.print(reader);
-		reader.setInput(file);
-		BufferedImage img = reader.read(0);
-		
-		
-		
 		if(Main.overwrite || !out.exists()){
+			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
+			if(!readers.hasNext()){
+				throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
+			}
+			ImageReader reader = readers.next();
+			reader.setInput(ImageIO.createImageInputStream(file));
+			BufferedImage img = reader.read(0);
 			Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
-			System.out.println("new name: " + name);
 			out.mkdirs();
 			out.createNewFile();
 			BufferedImage data = toBufferedImage(scaled);
-			ImageIO.write(data, ext, out);
+			Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
+			if(!writers.hasNext()){
+				throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
+			}
+			ImageWriter writer = writers.next();
+			writer.setOutput(ImageIO.createImageOutputStream(out));
+			writer.write(data);
+			writer.dispose();
+			reader.dispose();
 			img.flush();
 			scaled.flush();
 			data.flush();
