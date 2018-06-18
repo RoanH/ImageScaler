@@ -67,7 +67,7 @@ public class Worker {
 				}
 				try {
 					scale(img);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
 				}
