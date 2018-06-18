@@ -60,7 +60,6 @@ public class Worker {
 			executor.submit(()->{
 				while(!running){
 					try {
-						System.out.println("Wait");
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 					}
