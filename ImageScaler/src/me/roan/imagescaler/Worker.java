@@ -98,20 +98,22 @@ public class Worker {
 	 * @throws IOException When an IOException occurs
 	 */
 	private static final void scale(File file) throws IOException{
-		BufferedImage img = ImageIO.read(file);
-		Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
 		String name = file.getAbsolutePath().replace(Main.inputDir.getAbsolutePath(), "");
 		int dot = name.lastIndexOf('.');
 		String ext = name.substring(dot + 1);
-		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
-		out.mkdirs();
-		out.createNewFile();
-		BufferedImage data = toBufferedImage(scaled);
-		ImageIO.write(data, ext, out);
-		img.flush();
-		scaled.flush();
-		data.flush();
+		if(Main.overwrite || !out.exists()){
+			BufferedImage img = ImageIO.read(file);
+			Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
+			name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
+			out.mkdirs();
+			out.createNewFile();
+			BufferedImage data = toBufferedImage(scaled);
+			ImageIO.write(data, ext, out);
+			img.flush();
+			scaled.flush();
+			data.flush();
+		}
 	}
 	
 	/**
