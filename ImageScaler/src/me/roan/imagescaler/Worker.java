@@ -6,12 +6,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.swing.JOptionPane;
 
 /**
@@ -98,11 +100,24 @@ public class Worker {
 	 * @throws IOException When an IOException occurs
 	 */
 	private static final void scale(File file) throws IOException{
-		BufferedImage img = ImageIO.read(file);
-		Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
 		String name = file.getAbsolutePath().replace(Main.inputDir.getAbsolutePath(), "");
 		int dot = name.lastIndexOf('.');
 		String ext = name.substring(dot + 1);
+		
+		
+		//BufferedImage img = ImageIO.read(file);
+		Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
+		if(!readers.hasNext()){
+			throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
+		}
+		ImageReader reader = readers.next();
+		System.out.print(reader);
+		reader.setInput(ImageIO.createImageInputStream(file));
+		BufferedImage img = reader.read(0);
+		
+		
+		Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
+		
 		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
 		out.mkdirs();
