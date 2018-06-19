@@ -14,8 +14,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import com.twelvemonkeys.image.ResampleOp;
@@ -125,7 +123,6 @@ public class Worker {
 				throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
 			}
 			ImageWriter writer = writers.next();
-			JOptionPane.showMessageDialog(null, new JLabel(new ImageIcon(output)));
 			ImageOutputStream stream = ImageIO.createImageOutputStream(out);
 			writer.setOutput(stream);
 			writer.write(output);
