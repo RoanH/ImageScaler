@@ -1,18 +1,22 @@
 package me.roan.imagescaler;
 
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JOptionPane;
+
+import com.twelvemonkeys.image.ResampleOp;
 
 /**
  * Class responsible for actually scaling all
@@ -55,6 +59,8 @@ public class Worker {
 		ExecutorService executor = Executors.newFixedThreadPool(Main.threads);
 		completed.set(0);
 		running = true;
+		
+		Main.outputDir.mkdirs();
 				
 		for(File img : files){
 			executor.submit(()->{
@@ -103,30 +109,30 @@ public class Worker {
 		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
 		if(Main.overwrite || !out.exists()){
-			BufferedImage img = ImageIO.read(file);
-			Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
-			System.out.println("new name: " + name);
-			out.mkdirs();
+			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
+			if(!readers.hasNext()){
+				throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
+			}
+			ImageReader reader = readers.next();
+			reader.setInput(ImageIO.createImageInputStream(file));
+			BufferedImage img = reader.read(0);
+			BufferedImage output = new ResampleOp((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode).filter(img, null);
 			out.createNewFile();
-			BufferedImage data = toBufferedImage(scaled);
-			ImageIO.write(data, ext, out);
+			Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
+			if(!writers.hasNext()){
+				throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
+			}
+			ImageWriter writer = writers.next();
+			ImageOutputStream stream = ImageIO.createImageOutputStream(out);
+			writer.setOutput(stream);
+			writer.write(output);
+			writer.dispose();
+			stream.flush();
+			stream.close();
+			reader.dispose();
 			img.flush();
-			scaled.flush();
-			data.flush();
+			output.flush();
 		}
-	}
-	
-	/**
-	 * Converts the given image to a BufferedImage
-	 * @param img The image to convert
-	 * @return The converted image
-	 */
-	private static final BufferedImage toBufferedImage(Image img){
-		BufferedImage buffer = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics g = buffer.createGraphics();
-		g.drawImage(img, 0, 0, null);
-		g.dispose();
-		return buffer;
 	}
 	
 	/**
