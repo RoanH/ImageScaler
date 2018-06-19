@@ -60,7 +60,7 @@ public class Main {
 	/**
 	 * The scaling algorithm that is used
 	 */
-	protected static ScalingMode mode = ScalingMode.QUALITY;
+	protected static ScalingMode mode = ScalingMode.LANCZOS;
 	/**
 	 * The file chooser that is used
 	 */
