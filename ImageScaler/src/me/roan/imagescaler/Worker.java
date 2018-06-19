@@ -3,7 +3,9 @@ package me.roan.imagescaler;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,10 +14,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
+import com.twelvemonkeys.image.ResampleOp;
 
 /**
  * Class responsible for actually scaling all
@@ -58,6 +66,8 @@ public class Worker {
 		ExecutorService executor = Executors.newFixedThreadPool(Main.threads);
 		completed.set(0);
 		running = true;
+		
+		Main.outputDir.mkdirs();
 				
 		for(File img : files){
 			executor.submit(()->{
@@ -113,22 +123,28 @@ public class Worker {
 			ImageReader reader = readers.next();
 			reader.setInput(ImageIO.createImageInputStream(file));
 			BufferedImage img = reader.read(0);
-			Image scaled = img.getScaledInstance((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode);
-			out.mkdirs();
+			//Image scaled = img.getScaledInstance(, , Main.mode.mode);
+			BufferedImageOp resampler = new ResampleOp((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), ResampleOp.FILTER_LANCZOS); // A good default filter, see class documentation for more info
+			BufferedImage output = resampler.filter(img, null);
 			out.createNewFile();
-			BufferedImage data = toBufferedImage(scaled);
 			Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
 			if(!writers.hasNext()){
+				//System.out.println(writers.next());
 				throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
 			}
 			ImageWriter writer = writers.next();
-			writer.setOutput(ImageIO.createImageOutputStream(out));
-			writer.write(data);
+			JOptionPane.showMessageDialog(null, new JLabel(new ImageIcon(output)));
+			ImageOutputStream stream = ImageIO.createImageOutputStream(out);
+			System.out.println("writer: " + writer);
+			System.out.println("stream: " + stream);
+			writer.setOutput(stream);
+			System.out.println("stream meta: " + reader.getStreamMetadata());
+			System.out.print("Image meta: " + reader.getImageMetadata(0));
+			writer.write(output);
 			writer.dispose();
 			reader.dispose();
 			img.flush();
-			scaled.flush();
-			data.flush();
+			output.flush();
 		}
 	}
 	
