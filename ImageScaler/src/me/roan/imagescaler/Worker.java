@@ -1,11 +1,7 @@
 package me.roan.imagescaler;
 
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,7 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
@@ -123,42 +118,24 @@ public class Worker {
 			ImageReader reader = readers.next();
 			reader.setInput(ImageIO.createImageInputStream(file));
 			BufferedImage img = reader.read(0);
-			//Image scaled = img.getScaledInstance(, , Main.mode.mode);
-			BufferedImageOp resampler = new ResampleOp((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), ResampleOp.FILTER_LANCZOS); // A good default filter, see class documentation for more info
-			BufferedImage output = resampler.filter(img, null);
+			BufferedImage output = new ResampleOp((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), ResampleOp.FILTER_LANCZOS).filter(img, null);//TODO other algorithms
 			out.createNewFile();
 			Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
 			if(!writers.hasNext()){
-				//System.out.println(writers.next());
 				throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
 			}
 			ImageWriter writer = writers.next();
 			JOptionPane.showMessageDialog(null, new JLabel(new ImageIcon(output)));
 			ImageOutputStream stream = ImageIO.createImageOutputStream(out);
-			System.out.println("writer: " + writer);
-			System.out.println("stream: " + stream);
 			writer.setOutput(stream);
-			System.out.println("stream meta: " + reader.getStreamMetadata());
-			System.out.print("Image meta: " + reader.getImageMetadata(0));
 			writer.write(output);
 			writer.dispose();
+			stream.flush();
+			stream.close();
 			reader.dispose();
 			img.flush();
 			output.flush();
 		}
-	}
-	
-	/**
-	 * Converts the given image to a BufferedImage
-	 * @param img The image to convert
-	 * @return The converted image
-	 */
-	private static final BufferedImage toBufferedImage(Image img){
-		BufferedImage buffer = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics g = buffer.createGraphics();
-		g.drawImage(img, 0, 0, null);
-		g.dispose();
-		return buffer;
 	}
 	
 	/**
