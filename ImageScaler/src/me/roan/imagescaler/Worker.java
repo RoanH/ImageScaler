@@ -118,7 +118,7 @@ public class Worker {
 			ImageReader reader = readers.next();
 			reader.setInput(ImageIO.createImageInputStream(file));
 			BufferedImage img = reader.read(0);
-			BufferedImage output = new ResampleOp((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), ResampleOp.FILTER_LANCZOS).filter(img, null);//TODO other algorithms
+			BufferedImage output = new ResampleOp((int)Math.round((double)img.getWidth() * Main.scale), (int)Math.round((double)img.getHeight() * Main.scale), Main.mode.mode).filter(img, null);
 			out.createNewFile();
 			Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
 			if(!writers.hasNext()){
