@@ -255,10 +255,12 @@ public class Main {
 					renameMatch.setEnabled(true);
 					selin.setEnabled(true);
 					lin.setEnabled(true);
-					selout.setEnabled(true);
-					lout.setEnabled(true);
-					over.setEnabled(true);
 					samefolder.setEnabled(true);
+					if(!samefolder.isSelected()){
+						lout.setEnabled(true);
+						over.setEnabled(true);
+					}
+					over.setEnabled(true);
 					mode.setEnabled(true);
 					scalef.setEnabled(true);
 					threads.setEnabled(true);
@@ -284,9 +286,11 @@ public class Main {
 							selin.setEnabled(true);
 							lin.setEnabled(true);
 							selout.setEnabled(true);
-							lout.setEnabled(true);
-							over.setEnabled(true);
 							samefolder.setEnabled(true);
+							if(!samefolder.isSelected()){
+								lout.setEnabled(true);
+								over.setEnabled(true);
+							}
 							mode.setEnabled(true);
 							scalef.setEnabled(true);
 							threads.setEnabled(true);
