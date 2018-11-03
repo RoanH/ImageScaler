@@ -168,6 +168,9 @@ public class Main{
 		mode.addActionListener((e)->{
 			Main.mode = (ScalingMode)mode.getSelectedItem();
 		});
+		scalef.addChangeListener((e)->{
+			Main.scale = (double)scalef.getValue();
+		});
 
 		JPanel advoptions = new JPanel(new BorderLayout());
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
