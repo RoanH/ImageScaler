@@ -15,8 +15,8 @@ Well I hope some of you find this program useful :)
 And if you find any bugs or think of nice features feel free to report/request them. 
 
 ## Downloads
-[Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.1/ImageScaler-v2.1.exe)<br>
-[Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.1/ImageScaler-v2.1.jar)
+[Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.2/ImageScaler-v2.2.exe)<br>
+[Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.2/ImageScaler-v2.2.jar)
 
 All releases: [releases](https://github.com/RoanH/ImageScaler/releases)<br>
 GitHub repository: [here](https://github.com/RoanH/ImageScaler)
