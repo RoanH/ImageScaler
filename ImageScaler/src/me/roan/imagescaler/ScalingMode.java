@@ -6,7 +6,7 @@ import com.twelvemonkeys.image.ResampleOp;
  * Enum listing the available image scaling modes
  * @author Roan
  */
-public enum ScalingMode {
+public enum ScalingMode{
 	//Normal quality algorithms
 	POINT          ("Point",     ResampleOp.FILTER_POINT),
 	BOX            ("Box",       ResampleOp.FILTER_BOX),
@@ -24,7 +24,7 @@ public enum ScalingMode {
 	LANCZOS        ("Lanczos (high quality)",         ResampleOp.FILTER_LANCZOS),
 	BLACKMAN_BESSEL("Blackman bessel (high quality)", ResampleOp.FILTER_BLACKMAN_BESSEL),
 	BLACKMAN_SINC  ("Blackman sinc (high quality)",   ResampleOp.FILTER_BLACKMAN_SINC);
-	
+
 	/**
 	 * Display name of the algorithm
 	 */
@@ -33,7 +33,7 @@ public enum ScalingMode {
 	 * Identifier of the algorithm
 	 */
 	protected final int mode;
-	
+
 	/**
 	 * Constructs a new ScalingMode
 	 * with the given name and mode identifier
@@ -44,7 +44,7 @@ public enum ScalingMode {
 		this.name = name;
 		this.mode = mode;
 	}
-	
+
 	@Override
 	public String toString(){
 		return name;

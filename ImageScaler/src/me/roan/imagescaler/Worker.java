@@ -23,7 +23,7 @@ import com.twelvemonkeys.image.ResampleOp;
  * the images using the indicated number of threads
  * @author Roan
  */
-public class Worker {
+public class Worker{
 	/**
 	 * Number of images that have been scaled so far
 	 */
@@ -36,7 +36,7 @@ public class Worker {
 	 * List of files to scale
 	 */
 	private static List<File> files;
-	
+
 	/**
 	 * Reads the list of images to rescale
 	 * from the selected input directory
@@ -59,20 +59,20 @@ public class Worker {
 		ExecutorService executor = Executors.newFixedThreadPool(Main.threads);
 		completed.set(0);
 		running = true;
-		
+
 		Main.outputDir.mkdirs();
-				
+
 		for(File img : files){
 			executor.submit(()->{
 				while(!running){
-					try {
+					try{
 						Thread.sleep(1000);
-					} catch (InterruptedException e) {
+					}catch(InterruptedException e){
 					}
 				}
-				try {
+				try{
 					scale(img);
-				} catch (Exception e) {
+				}catch(Exception e){
 					JOptionPane.showMessageDialog(null, "An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
 					e.printStackTrace();
 				}
@@ -83,7 +83,7 @@ public class Worker {
 			});
 		}
 	}
-	
+
 	/**
 	 * Simply interface that gets called when progress was made
 	 * @author Roan
@@ -95,7 +95,7 @@ public class Worker {
 		 */
 		public abstract void progress();
 	}
-	
+
 	/**
 	 * Rescales the given image in accordance with the
 	 * selected options.
@@ -134,7 +134,7 @@ public class Worker {
 			output.flush();
 		}
 	}
-	
+
 	/**
 	 * Gets a list of all the files in the
 	 * input folder that math the filter regex

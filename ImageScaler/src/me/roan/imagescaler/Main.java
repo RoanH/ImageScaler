@@ -40,7 +40,7 @@ import javax.swing.UIManager;
  * 
  * @author Roan
  */
-public class Main {
+public class Main{
 	/**
 	 * The directory to write rescaled images to
 	 */
@@ -88,22 +88,22 @@ public class Main {
 	 * @param args No valid command line arguments
 	 */
 	public static void main(String[] args){
-		try {
+		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable t) {
+		}catch(Throwable t){
 		}
 		chooser = new JFileChooser();
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		chooser.setMultiSelectionEnabled(false);
-		
+
 		JFrame frame = new JFrame("Image Scaler");
-		try {
+		try{
 			frame.setIconImage(ImageIO.read(ClassLoader.getSystemResource("icon.png")));
-		} catch (IOException e2) {
+		}catch(IOException e2){
 		}
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
+
 		JPanel input = new JPanel(new BorderLayout());
 		JTextField lout = new JTextField("");
 		JCheckBox samefolder = new JCheckBox("Write to input folder", true);
@@ -121,7 +121,7 @@ public class Main {
 				}
 			}
 		});
-		
+
 		JPanel output = new JPanel(new BorderLayout());
 		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
 		JButton selout = new JButton("Select");
@@ -146,7 +146,7 @@ public class Main {
 				lout.setText(chooser.getSelectedFile().getAbsolutePath());
 			}
 		});
-		
+
 		JPanel options = new JPanel(new BorderLayout());
 		options.setBorder(BorderFactory.createTitledBorder("Options"));
 		JCheckBox over = new JCheckBox("Overwrite existing files?", overwrite);
@@ -168,7 +168,7 @@ public class Main {
 		mode.addActionListener((e)->{
 			Main.mode = (ScalingMode)mode.getSelectedItem();
 		});
-		
+
 		JPanel advoptions = new JPanel(new BorderLayout());
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
 		JPanel labelsadv = new JPanel(new GridLayout(3, 1, 0, 5));
@@ -191,7 +191,7 @@ public class Main {
 		selsadv.add(threads);
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
 		advoptions.add(selsadv, BorderLayout.CENTER);
-		
+
 		JPanel progress = new JPanel(new BorderLayout());
 		progress.setBorder(BorderFactory.createTitledBorder("Progress"));
 		JProgressBar bar = new JProgressBar();
@@ -199,7 +199,7 @@ public class Main {
 		progress.add(bar, BorderLayout.CENTER);
 		JLabel ptext = new JLabel("Waiting...", SwingConstants.CENTER);
 		progress.add(ptext, BorderLayout.PAGE_START);
-		
+
 		JPanel controls = new JPanel(new GridLayout(1, 2, 5, 0));
 		controls.setBorder(BorderFactory.createTitledBorder("Controls"));
 		JButton pause = new JButton("Pause");
@@ -302,7 +302,7 @@ public class Main {
 				});
 			}
 		});
-		
+
 		JPanel version = new JPanel(new GridLayout(2, 1, 0, 2));
 		version.setBorder(BorderFactory.createTitledBorder("Information"));
 		JLabel ver = new JLabel("<html><center><i>Version: v2.1, latest version: <font color=gray>loading</font></i></center></html>", SwingConstants.CENTER);
@@ -321,62 +321,62 @@ public class Main {
 		forum.addMouseListener(new MouseListener(){
 
 			@Override
-			public void mouseClicked(MouseEvent e) {
+			public void mouseClicked(MouseEvent e){
 				if(Desktop.isDesktopSupported()){
-					try {
+					try{
 						Desktop.getDesktop().browse(new URL("https://osu.ppy.sh/community/forums/topics/762684").toURI());
-					} catch (IOException | URISyntaxException e1) {
+					}catch(IOException | URISyntaxException e1){
 						//pity
 					}
 				}
 			}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void mousePressed(MouseEvent e){
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
+			public void mouseReleased(MouseEvent e){
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
+			public void mouseEntered(MouseEvent e){
 			}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
+			public void mouseExited(MouseEvent e){
 			}
 		});
 		git.addMouseListener(new MouseListener(){
 
 			@Override
-			public void mouseClicked(MouseEvent e) {
+			public void mouseClicked(MouseEvent e){
 				if(Desktop.isDesktopSupported()){
-					try {
+					try{
 						Desktop.getDesktop().browse(new URL("https://github.com/RoanH/ImageScaler").toURI());
-					} catch (IOException | URISyntaxException e1) {
+					}catch(IOException | URISyntaxException e1){
 						//pity
 					}
 				}
 			}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void mousePressed(MouseEvent e){
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
+			public void mouseReleased(MouseEvent e){
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
+			public void mouseEntered(MouseEvent e){
 			}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
+			public void mouseExited(MouseEvent e){
 			}
 		});
-		
+
 		panel.add(input);
 		panel.add(output);
 		panel.add(options);
@@ -384,7 +384,7 @@ public class Main {
 		panel.add(progress);
 		panel.add(controls);
 		panel.add(version);
-		
+
 		frame.add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
@@ -392,21 +392,21 @@ public class Main {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
-	
+
 	/**
 	 * Checks the Image Scaler version to see
 	 * if we are running the latest version
 	 * @return The latest version
 	 */
 	private static final String checkVersion(){
-		try{ 			
-			HttpURLConnection con = (HttpURLConnection) new URL("https://api.github.com/repos/RoanH/ImageScaler/tags").openConnection(); 			
+		try{
+			HttpURLConnection con = (HttpURLConnection)new URL("https://api.github.com/repos/RoanH/ImageScaler/tags").openConnection();
 			con.setRequestMethod("GET");
 			con.addRequestProperty("Accept", "application/vnd.github.v3+json");
-			con.setConnectTimeout(10000); 					   
-			BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream())); 	
-			String line = reader.readLine(); 		
-			reader.close(); 	
+			con.setConnectTimeout(10000);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String line = reader.readLine();
+			reader.close();
 			String[] versions = line.split("\"name\":\"v");
 			int max_main = 1;
 			int max_sub = 0;
@@ -425,7 +425,7 @@ public class Main {
 				}
 			}
 			return "v" + max_main + "." + max_sub;
-		}catch(Exception e){ 	
+		}catch(Exception e){
 			return null;
 			//No Internet access or something else is wrong,
 			//No problem though since this isn't a critical function
