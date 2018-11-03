@@ -261,7 +261,6 @@ public class Main{
 					samefolder.setEnabled(true);
 					if(!samefolder.isSelected()){
 						lout.setEnabled(true);
-						over.setEnabled(true);
 					}
 					over.setEnabled(true);
 					mode.setEnabled(true);
@@ -292,8 +291,8 @@ public class Main{
 							samefolder.setEnabled(true);
 							if(!samefolder.isSelected()){
 								lout.setEnabled(true);
-								over.setEnabled(true);
 							}
+							over.setEnabled(true);
 							mode.setEnabled(true);
 							scalef.setEnabled(true);
 							threads.setEnabled(true);
