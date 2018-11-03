@@ -307,11 +307,11 @@ public class Main{
 
 		JPanel version = new JPanel(new GridLayout(2, 1, 0, 2));
 		version.setBorder(BorderFactory.createTitledBorder("Information"));
-		JLabel ver = new JLabel("<html><center><i>Version: v2.1, latest version: <font color=gray>loading</font></i></center></html>", SwingConstants.CENTER);
+		JLabel ver = new JLabel("<html><center><i>Version: v2.2, latest version: <font color=gray>loading</font></i></center></html>", SwingConstants.CENTER);
 		version.add(ver);
 		new Thread(()->{
 			String v = checkVersion();//XXX the version number 
-			ver.setText("<html><center><i>Version: v2.1, latest version: " + (v == null ? "unknown :(" : v) + "</i></center></html>");
+			ver.setText("<html><center><i>Version: v2.2, latest version: " + (v == null ? "unknown :(" : v) + "</i></center></html>");
 		}, "Version Checker").start();
 		JPanel links = new JPanel(new GridLayout(1, 2, -2, 0));
 		JLabel forum = new JLabel("<html><font color=blue><u>Forums</u></font> -</html>", SwingConstants.RIGHT);
