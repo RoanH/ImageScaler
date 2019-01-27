@@ -9,8 +9,8 @@ before_script:
   - java -version
 
 stages:
-  - status
   - compile
+  - status
   - javadoc
 
 pending:
