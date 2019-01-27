@@ -2,7 +2,7 @@
 Simple but powerful batch image rescaler.
 
 # Forum post
-So a little while ago a friend of mine came up with the idea to write a program that would automatically create SD images for already exising HD (@2x) skin images.
+So a little while ago a friend of mine came up with the idea to write a program that would automatically create SD images for already existing HD (@2x) skin images.
 And now that program is done :D.
 
 The program itself looks like this:    
