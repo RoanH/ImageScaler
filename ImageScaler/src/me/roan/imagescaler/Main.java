@@ -17,7 +17,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
@@ -223,19 +222,19 @@ public class Main{
 		start.addActionListener((e)->{
 			inputDir = new File(lin.getText());
 			if(!inputDir.exists()){
-				JOptionPane.showMessageDialog(frame, "Input Directory does not exist!", "Image Scaler", JOptionPane.ERROR_MESSAGE);
+				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
 				outputDir = new File(lout.getText());
 				try{
 					Main.regex = Pattern.compile(regex.getText());
 				}catch(PatternSyntaxException e1){
-					JOptionPane.showMessageDialog(frame, "Invalid file name regex: " + e1.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
+					Dialog.showErrorDialog("Invalid file name regex: " + e1.getMessage());
 					return;
 				}
 				try{
 					Main.renameRegex = Pattern.compile(renameMatch.getText());
 				}catch(PatternSyntaxException e1){
-					JOptionPane.showMessageDialog(frame, "Invalid file rename regex: " + e1.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
+					Dialog.showErrorDialog("Invalid file rename regex: " + e1.getMessage());
 					return;
 				}
 				Main.renameReplace = renameReplace.getText();

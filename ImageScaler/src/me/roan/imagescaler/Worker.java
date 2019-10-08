@@ -14,9 +14,10 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.swing.JOptionPane;
 
 import com.twelvemonkeys.image.ResampleOp;
+
+import me.roan.util.Dialog;
 
 /**
  * Class responsible for actually scaling all
@@ -73,7 +74,7 @@ public class Worker{
 				try{
 					scale(img);
 				}catch(Exception e){
-					JOptionPane.showMessageDialog(null, "An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage(), "Image Scaler", JOptionPane.ERROR_MESSAGE);
+					Dialog.showErrorDialog("An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage());
 					e.printStackTrace();
 				}
 				if(completed.incrementAndGet() == files.size()){
