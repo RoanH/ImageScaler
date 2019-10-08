@@ -41,6 +41,13 @@ repositories{
 
 dependencies{
 	implementation 'com.github.RoanH:Util:v1.1'
+	implementation "com.twelvemonkeys.imageio:imageio-jpeg:3.0.2"
+	implementation "com.twelvemonkeys.imageio:imageio-icns:3.0.2"
+	implementation "com.twelvemonkeys.imageio:imageio-ico:3.0.2"
+	implementation "com.twelvemonkeys.imageio:imageio-iff:3.0.2"
+	implementation "com.twelvemonkeys.imageio:imageio-pict:3.0.2"
+	implementation "com.twelvemonkeys.imageio:imageio-psd:3.0.2"
+	implementation "com.twelvemonkeys.imageio:imageio-tiff:3.0.2"
 }
 
 application{
