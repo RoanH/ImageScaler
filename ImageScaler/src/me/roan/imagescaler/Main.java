@@ -3,6 +3,7 @@ package me.roan.imagescaler;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
@@ -32,6 +33,8 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+
+import me.roan.util.Dialog;
 
 /**
  * Relatively simple program that rescales images
@@ -95,10 +98,14 @@ public class Main{
 		chooser = new JFileChooser();
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		chooser.setMultiSelectionEnabled(false);
-
+		
 		JFrame frame = new JFrame("Image Scaler");
+		Dialog.setDialogTitle("Image Scaler");
+		Dialog.setParentFrame(frame);
 		try{
-			frame.setIconImage(ImageIO.read(ClassLoader.getSystemResource("icon.png")));
+			Image icon = ImageIO.read(ClassLoader.getSystemResource("icon.png"));
+			Dialog.setDialogIcon(icon);
+			frame.setIconImage(icon);
 		}catch(IOException e2){
 		}
 		JPanel panel = new JPanel();
