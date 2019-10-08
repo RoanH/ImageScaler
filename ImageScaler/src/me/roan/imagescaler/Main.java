@@ -1,17 +1,13 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
-import java.awt.Desktop;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -34,6 +30,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
+import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
 
 /**
@@ -327,64 +324,8 @@ public class Main{
 		links.add(git);
 		version.add(links);
 		version.add(ver);
-		forum.addMouseListener(new MouseListener(){
-
-			@Override
-			public void mouseClicked(MouseEvent e){
-				if(Desktop.isDesktopSupported()){
-					try{
-						Desktop.getDesktop().browse(new URL("https://osu.ppy.sh/community/forums/topics/762684").toURI());
-					}catch(IOException | URISyntaxException e1){
-						//pity
-					}
-				}
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e){
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e){
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e){
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e){
-			}
-		});
-		git.addMouseListener(new MouseListener(){
-
-			@Override
-			public void mouseClicked(MouseEvent e){
-				if(Desktop.isDesktopSupported()){
-					try{
-						Desktop.getDesktop().browse(new URL("https://github.com/RoanH/ImageScaler").toURI());
-					}catch(IOException | URISyntaxException e1){
-						//pity
-					}
-				}
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e){
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e){
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e){
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e){
-			}
-		});
+		forum.addMouseListener(new ClickableLink("https://osu.ppy.sh/community/forums/topics/762684"));
+		git.addMouseListener(new ClickableLink("https://github.com/RoanH/ImageScaler"));
 
 		panel.add(input);
 		panel.add(output);
