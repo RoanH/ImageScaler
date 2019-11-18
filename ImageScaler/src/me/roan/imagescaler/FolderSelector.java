@@ -1,6 +1,9 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.function.Consumer;
 
 import javax.swing.JButton;
@@ -8,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.TransferHandler;
 
 public class FolderSelector extends JPanel{
 	/**
@@ -34,11 +38,36 @@ public class FolderSelector extends JPanel{
 				}
 			}
 		});
+		
+		this.setTransferHandler(new FolderTransferHandler());
 	}
 	
 	@Override
 	public void setEnabled(boolean enabled){
 		//TODO
+	}
+	
+	private static final class FolderTransferHandler extends TransferHandler{
+		
+		public boolean canImport(TransferSupport info){
+			return info.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+		}
+		
+		public boolean importData(TransferSupport info){
+			if(!info.isDrop() || !canImport(info)){
+				return false;
+			}
+			
+			try{
+				System.out.println("DND: " + info.getTransferable().getTransferData(DataFlavor.javaFileListFlavor));
+			}catch(UnsupportedFlavorException | IOException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			return false;
+		}
 	}
 	
 	static{

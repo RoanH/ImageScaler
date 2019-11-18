@@ -106,14 +106,14 @@ public class Main{
 		input.add(lin, BorderLayout.CENTER);
 		input.add(selin, BorderLayout.LINE_END);
 		input.add(new JLabel("Folder: "), BorderLayout.LINE_START);
-		selin.addActionListener((e)->{
-			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
-				lin.setText(chooser.getSelectedFile().getAbsolutePath());
-				if(samefolder.isSelected()){
-					lout.setText(lin.getText());
-				}
-			}
-		});
+//		selin.addActionListener((e)->{
+//			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+//				lin.setText(chooser.getSelectedFile().getAbsolutePath());
+//				if(samefolder.isSelected()){
+//					lout.setText(lin.getText());
+//				}
+//			}
+//		});
 
 		JPanel output = new JPanel(new BorderLayout());
 		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
