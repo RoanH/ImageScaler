@@ -58,10 +58,6 @@ public class Main{
 	 */
 	protected static ScalingMode mode = ScalingMode.LANCZOS;
 	/**
-	 * The file chooser that is used
-	 */
-	protected static JFileChooser chooser;
-	/**
 	 * Number of rescale threads to use
 	 */
 	protected static int threads = Runtime.getRuntime().availableProcessors();
@@ -88,9 +84,6 @@ public class Main{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}catch(Throwable t){
 		}
-		chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setMultiSelectionEnabled(false);
 		
 		JFrame frame = new JFrame("Image Scaler");
 		Dialog.setDialogTitle("Image Scaler");
