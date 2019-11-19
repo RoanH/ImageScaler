@@ -83,8 +83,6 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	
 	@Override
 	public void insertUpdate(DocumentEvent e){
-		// TODO Auto-generated method stub
-		//System.out.println("Insert: " + lin.getText());
 		if(listener != null){
 			listener.accept(field.getText());
 		}	
@@ -92,8 +90,6 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 
 	@Override
 	public void removeUpdate(DocumentEvent e){
-		// TODO Auto-generated method stub
-		//System.out.println("Remove: " + lin.getText());
 		if(listener != null){
 			listener.accept(field.getText());
 		}
@@ -101,8 +97,6 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 
 	@Override
 	public void changedUpdate(DocumentEvent e){
-		// TODO Auto-generated method stub
-		//System.out.println("Change: " + lin.getText());
 		if(listener != null){
 			listener.accept(field.getText());
 		}
@@ -136,8 +130,7 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 					field.setText(files.get(0).getAbsolutePath());
 				}
 			}catch(UnsupportedFlavorException | IOException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//Pity, but not important
 			}
 		}
 	}
