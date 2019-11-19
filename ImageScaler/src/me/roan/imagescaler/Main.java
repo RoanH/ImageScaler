@@ -101,7 +101,7 @@ public class Main{
 		JTextField lout = new JTextField("");
 		JCheckBox samefolder = new JCheckBox("Write to input folder", true);
 		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
-		input.add(new FolderSelector());
+		input.add(new FolderSelector(lout::setText));
 //		selin.addActionListener((e)->{
 //			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
 //				lin.setText(chooser.getSelectedFile().getAbsolutePath());
