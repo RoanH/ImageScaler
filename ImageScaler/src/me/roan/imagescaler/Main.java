@@ -100,16 +100,13 @@ public class Main{
 		JPanel input = new JPanel(new BorderLayout());
 		JTextField lout = new JTextField("");
 		JCheckBox samefolder = new JCheckBox("Write to input folder", true);
+		FolderSelector fin = new FolderSelector(data->{
+			if(samefolder.isSelected()){
+				lout.setText(data.contains(".") ? "Not applicable input is a file" : data);
+			}
+		});
 		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
-		input.add(new FolderSelector(lout::setText));
-//		selin.addActionListener((e)->{
-//			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
-//				lin.setText(chooser.getSelectedFile().getAbsolutePath());
-//				if(samefolder.isSelected()){
-//					lout.setText(lin.getText());
-//				}
-//			}
-//		});
+		input.add(fin);
 
 		JPanel output = new JPanel(new BorderLayout());
 		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
@@ -124,7 +121,7 @@ public class Main{
 			if(samefolder.isSelected()){
 				lout.setEnabled(false);
 				selout.setEnabled(false);
-//				lout.setText(lin.getText());
+				lout.setText(fin.getText());
 			}else{
 				lout.setEnabled(true);
 				selout.setEnabled(true);

@@ -44,9 +44,7 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	public FolderSelector(Consumer<String> listener){
 		super(new BorderLayout());
 		
-		if(listener != null){
-			this.listener = data->listener.accept(data.contains(".") ? "Not applicable input is a file" : data);
-		}
+		this.listener = listener;
 		
 		this.add(field, BorderLayout.CENTER);
 		this.add(select, BorderLayout.LINE_END);
@@ -59,6 +57,10 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	
 	public void setListener(Consumer<String> listener){
 		this.listener = listener;
+	}
+	
+	public String getText(){
+		return field.getText();
 	}
 	
 	@Override
