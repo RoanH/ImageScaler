@@ -101,11 +101,7 @@ public class Main{
 		JTextField lout = new JTextField("");
 		JCheckBox samefolder = new JCheckBox("Write to input folder", true);
 		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
-		JButton selin = new JButton("Select");
-		JTextField lin = new JTextField("");
-		input.add(lin, BorderLayout.CENTER);
-		input.add(selin, BorderLayout.LINE_END);
-		input.add(new JLabel("Folder: "), BorderLayout.LINE_START);
+		input.add(new FolderSelector());
 //		selin.addActionListener((e)->{
 //			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
 //				lin.setText(chooser.getSelectedFile().getAbsolutePath());
@@ -128,16 +124,16 @@ public class Main{
 			if(samefolder.isSelected()){
 				lout.setEnabled(false);
 				selout.setEnabled(false);
-				lout.setText(lin.getText());
+//				lout.setText(lin.getText());
 			}else{
 				lout.setEnabled(true);
 				selout.setEnabled(true);
 			}
 		});
 		selout.addActionListener((e)->{
-			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
-				lout.setText(chooser.getSelectedFile().getAbsolutePath());
-			}
+//			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+//				lout.setText(chooser.getSelectedFile().getAbsolutePath());
+//			}
 		});
 
 		JPanel options = new JPanel(new BorderLayout());
@@ -213,7 +209,7 @@ public class Main{
 			}
 		});
 		start.addActionListener((e)->{
-			inputDir = new File(lin.getText());
+//			inputDir = new File(lin.getText());
 			if(!inputDir.exists()){
 				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
@@ -233,8 +229,8 @@ public class Main{
 				Main.renameReplace = renameReplace.getText();
 				renameReplace.setEnabled(false);
 				renameMatch.setEnabled(false);
-				selin.setEnabled(false);
-				lin.setEnabled(false);
+//				selin.setEnabled(false);
+//				lin.setEnabled(false);
 				selout.setEnabled(false);
 				lout.setEnabled(false);
 				over.setEnabled(false);
@@ -249,8 +245,8 @@ public class Main{
 				if(total == 0){
 					renameReplace.setEnabled(true);
 					renameMatch.setEnabled(true);
-					selin.setEnabled(true);
-					lin.setEnabled(true);
+//					selin.setEnabled(true);
+//					lin.setEnabled(true);
 					samefolder.setEnabled(true);
 					if(!samefolder.isSelected()){
 						lout.setEnabled(true);
@@ -278,8 +274,8 @@ public class Main{
 						if(done == total){
 							renameReplace.setEnabled(true);
 							renameMatch.setEnabled(true);
-							selin.setEnabled(true);
-							lin.setEnabled(true);
+//							selin.setEnabled(true);
+//							lin.setEnabled(true);
 							selout.setEnabled(true);
 							samefolder.setEnabled(true);
 							if(!samefolder.isSelected()){
