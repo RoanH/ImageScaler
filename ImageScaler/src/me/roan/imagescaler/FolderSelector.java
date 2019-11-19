@@ -63,6 +63,10 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 		return field.getText();
 	}
 	
+	public void setText(String text){
+		field.setText(text);
+	}
+	
 	@Override
 	public void setEnabled(boolean enabled){
 		super.setEnabled(enabled);
