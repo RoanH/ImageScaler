@@ -116,11 +116,12 @@ public class Main{
 
 		JPanel input = new JPanel(new BorderLayout());
 		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
-		input.add(fin);
+		input.add(fin, BorderLayout.CENTER);
 
 		JPanel output = new JPanel(new BorderLayout());
-		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));		
-		output.add(fout);
+		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
+		output.add(samefolder, BorderLayout.PAGE_START);
+		output.add(fout, BorderLayout.CENTER);
 		fout.setEnabled(false);
 
 		JPanel options = new JPanel(new BorderLayout());
