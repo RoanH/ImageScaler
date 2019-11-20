@@ -79,6 +79,7 @@ public class Main{
 	 * @param args No valid command line arguments
 	 */
 	public static void main(String[] args){
+		//TODO issue #23 switch Util.installUI();
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}catch(Throwable t){
