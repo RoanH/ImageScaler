@@ -205,12 +205,11 @@ public class Main{
 			}
 		});
 		start.addActionListener((e)->{
-			inputDir = new File(fin.getText());
-			//TODO handle file case
+			inputDir = fin.getFile();
 			if(!inputDir.exists()){
 				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
-				outputDir = new File(fout.getText());
+				outputDir = inputDir.isDirectory() ? new File(fout.getText()) : null;
 				try{
 					Main.regex = Pattern.compile(regex.getText());
 				}catch(PatternSyntaxException e1){

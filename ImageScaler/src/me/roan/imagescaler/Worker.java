@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -50,7 +51,15 @@ public class Worker{
 	 *         are going to be rescaled
 	 */
 	public static final int prepare(){
-		files = getImages(Main.inputDir);
+		if(Main.inputDir.isDirectory()){
+			files = getImages(Main.inputDir);
+		}else{
+			files = Collections.singletonList(Main.inputDir);
+			Main.inputDir = Main.inputDir.getParentFile();
+			if(Main.outputDir == null){
+				Main.outputDir = Main.inputDir;
+			}
+		}
 		return files.size();
 	}
 
@@ -63,8 +72,6 @@ public class Worker{
 		ExecutorService executor = Executors.newFixedThreadPool(Main.threads);
 		completed.set(0);
 		running = true;
-
-		Main.outputDir.mkdirs();
 
 		for(File img : files){
 			executor.submit(()->{
