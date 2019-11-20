@@ -3,6 +3,8 @@ package me.roan.imagescaler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -128,7 +130,10 @@ public class Worker{
 		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
 		
-		if(Main.overwrite || !out.exists()){
+		if(Double.compare(Main.scale, 1.0D) == 0){
+			out.getParentFile().mkdirs();
+			Files.copy(file.toPath(), out.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}else if(Main.overwrite || !out.exists()){
 			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
 			if(!readers.hasNext()){
 				throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
