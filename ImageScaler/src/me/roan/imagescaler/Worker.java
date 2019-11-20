@@ -89,6 +89,7 @@ public class Worker{
 						"The program ran out of memory while scaling: "
 						+ img.getName()
 						+ "\nIf this happens more often try lowering the 'Thread' value."
+						+ "\n\nAlternatively you can try running the program with more RAM."
 						+ "\n\nOn the off chance that you're running 32bit Java on a 64bit system"
 						+ "\nswitching to 64bit Java will most likely fix the issue too."
 					);
@@ -152,7 +153,6 @@ public class Worker{
 					
 					writer.dispose();
 					stream.flush();
-					stream.close();
 					reader.dispose();
 					img.flush();
 					output.flush();
