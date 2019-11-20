@@ -72,6 +72,7 @@ public class Worker{
 					}catch(InterruptedException e){
 					}
 				}
+				
 				try{
 					scale(img);
 				}catch(Exception e){
