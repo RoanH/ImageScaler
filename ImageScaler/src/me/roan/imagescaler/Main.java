@@ -14,7 +14,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,10 +57,6 @@ public class Main{
 	 */
 	protected static ScalingMode mode = ScalingMode.LANCZOS;
 	/**
-	 * The file chooser that is used
-	 */
-	protected static JFileChooser chooser;
-	/**
 	 * Number of rescale threads to use
 	 */
 	protected static int threads = Runtime.getRuntime().availableProcessors();
@@ -88,9 +83,6 @@ public class Main{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}catch(Throwable t){
 		}
-		chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setMultiSelectionEnabled(false);
 		
 		JFrame frame = new JFrame("Image Scaler");
 		Dialog.setDialogTitle("Image Scaler");
@@ -101,51 +93,35 @@ public class Main{
 			frame.setIconImage(icon);
 		}catch(IOException e2){
 		}
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-		JPanel input = new JPanel(new BorderLayout());
-		JTextField lout = new JTextField("");
+		
 		JCheckBox samefolder = new JCheckBox("Write to input folder", true);
-		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
-		JButton selin = new JButton("Select");
-		JTextField lin = new JTextField("");
-		input.add(lin, BorderLayout.CENTER);
-		input.add(selin, BorderLayout.LINE_END);
-		input.add(new JLabel("Folder: "), BorderLayout.LINE_START);
-		selin.addActionListener((e)->{
-			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
-				lin.setText(chooser.getSelectedFile().getAbsolutePath());
-				if(samefolder.isSelected()){
-					lout.setText(lin.getText());
-				}
+		FolderSelector fout = new FolderSelector();
+		FolderSelector fin = new FolderSelector(data->{
+			if(samefolder.isSelected()){
+				fout.setText(data.contains(".") ? "Not applicable input is a file" : data);
 			}
 		});
+		samefolder.addActionListener((e)->{
+			if(samefolder.isSelected()){
+				fout.setEnabled(false);
+				fout.setText(fin.getText());
+			}else{
+				fout.setEnabled(true);
+			}
+		});
+
+		JPanel input = new JPanel(new BorderLayout());
+		input.setBorder(BorderFactory.createTitledBorder("Input Folder"));
+		input.add(fin, BorderLayout.CENTER);
 
 		JPanel output = new JPanel(new BorderLayout());
 		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
-		JButton selout = new JButton("Select");
-		output.add(lout, BorderLayout.CENTER);
-		output.add(selout, BorderLayout.LINE_END);
 		output.add(samefolder, BorderLayout.PAGE_START);
-		output.add(new JLabel("Folder: "), BorderLayout.LINE_START);
-		lout.setEnabled(false);
-		selout.setEnabled(false);
-		samefolder.addActionListener((e)->{
-			if(samefolder.isSelected()){
-				lout.setEnabled(false);
-				selout.setEnabled(false);
-				lout.setText(lin.getText());
-			}else{
-				lout.setEnabled(true);
-				selout.setEnabled(true);
-			}
-		});
-		selout.addActionListener((e)->{
-			if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
-				lout.setText(chooser.getSelectedFile().getAbsolutePath());
-			}
-		});
+		output.add(fout, BorderLayout.CENTER);
+		fout.setEnabled(false);
 
 		JPanel options = new JPanel(new BorderLayout());
 		options.setBorder(BorderFactory.createTitledBorder("Options"));
@@ -220,11 +196,12 @@ public class Main{
 			}
 		});
 		start.addActionListener((e)->{
-			inputDir = new File(lin.getText());
+			inputDir = new File(fin.getText());
+			//TODO handle file case
 			if(!inputDir.exists()){
 				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
-				outputDir = new File(lout.getText());
+				outputDir = new File(fout.getText());
 				try{
 					Main.regex = Pattern.compile(regex.getText());
 				}catch(PatternSyntaxException e1){
@@ -238,12 +215,19 @@ public class Main{
 					return;
 				}
 				Main.renameReplace = renameReplace.getText();
+				final int total = Worker.prepare();
+				if(total == 0){
+					ptext.setText("No files to rescale");
+					bar.setMaximum(1);
+					bar.setValue(1);
+					return;
+				}
+				bar.setMaximum(total);
+				
 				renameReplace.setEnabled(false);
 				renameMatch.setEnabled(false);
-				selin.setEnabled(false);
-				lin.setEnabled(false);
-				selout.setEnabled(false);
-				lout.setEnabled(false);
+				fout.setEnabled(false);
+				fin.setEnabled(false);
 				over.setEnabled(false);
 				samefolder.setEnabled(false);
 				mode.setEnabled(false);
@@ -252,29 +236,7 @@ public class Main{
 				start.setEnabled(false);
 				regex.setEnabled(false);
 				pause.setEnabled(true);
-				final int total = Worker.prepare();
-				if(total == 0){
-					renameReplace.setEnabled(true);
-					renameMatch.setEnabled(true);
-					selin.setEnabled(true);
-					lin.setEnabled(true);
-					samefolder.setEnabled(true);
-					if(!samefolder.isSelected()){
-						lout.setEnabled(true);
-					}
-					over.setEnabled(true);
-					mode.setEnabled(true);
-					scalef.setEnabled(true);
-					threads.setEnabled(true);
-					start.setEnabled(true);
-					regex.setEnabled(true);
-					pause.setEnabled(false);
-					ptext.setText("No files to rescale");
-					bar.setMaximum(1);
-					bar.setValue(1);
-					return;
-				}
-				bar.setMaximum(total);
+				
 				final Object lock = new Object();
 				Worker.start(()->{
 					synchronized(lock){
@@ -285,12 +247,10 @@ public class Main{
 						if(done == total){
 							renameReplace.setEnabled(true);
 							renameMatch.setEnabled(true);
-							selin.setEnabled(true);
-							lin.setEnabled(true);
-							selout.setEnabled(true);
+							fin.setEnabled(true);
 							samefolder.setEnabled(true);
 							if(!samefolder.isSelected()){
-								lout.setEnabled(true);
+								fout.setEnabled(true);
 							}
 							over.setEnabled(true);
 							mode.setEnabled(true);
