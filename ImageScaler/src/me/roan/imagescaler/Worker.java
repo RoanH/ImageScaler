@@ -145,6 +145,7 @@ public class Worker{
 					throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
 				}
 				
+				out.getParentFile().mkdirs();
 				out.createNewFile();
 				ImageWriter writer = writers.next();
 				try(ImageOutputStream stream = ImageIO.createImageOutputStream(out)){
