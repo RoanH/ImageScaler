@@ -171,7 +171,7 @@ public class Worker{
 	private static final List<File> getImages(File dir){
 		List<File> list = new ArrayList<File>();
 		for(File file : dir.listFiles()){
-			if(file.isDirectory()){
+			if(file.isDirectory() && Main.subdirectories){
 				list.addAll(getImages(file));
 			}else if(Main.regex.matcher(file.getName()).matches()){
 				list.add(file);

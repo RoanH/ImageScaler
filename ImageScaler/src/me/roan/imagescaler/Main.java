@@ -73,6 +73,7 @@ public class Main{
 	 * matched by the {@link #renameRegex} regex.
 	 */
 	protected static String renameReplace = "";
+	protected static boolean subdirectories = true;
 
 	/**
 	 * Starts the program and shows the GUI
@@ -125,14 +126,18 @@ public class Main{
 		fout.setEnabled(false);
 
 		JPanel options = new JPanel(new BorderLayout());
+		JPanel checkboxes = new JPanel(new GridLayout(2, 1, 0, 0));
 		options.setBorder(BorderFactory.createTitledBorder("Options"));
-		JCheckBox over = new JCheckBox("Overwrite existing files?", overwrite);
+		JCheckBox over = new JCheckBox("Overwrite existing files", overwrite);
+		JCheckBox subdir = new JCheckBox("Parse subdirectories", subdirectories);
 		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
 		mode.setSelectedItem(Main.mode);
 		JPanel labels = new JPanel(new GridLayout(2, 1, 0, 5));
 		JPanel sels = new JPanel(new GridLayout(2, 1, 0, 5));
 		JSpinner scalef = new JSpinner(new SpinnerNumberModel(Main.scale, 0, Short.MAX_VALUE, 0.01));
-		options.add(over, BorderLayout.PAGE_START);
+		checkboxes.add(over);
+		checkboxes.add(subdir);
+		options.add(checkboxes, BorderLayout.PAGE_START);
 		labels.add(new JLabel("Scaling algorithm: "));
 		labels.add(new JLabel("Scaling factor: "));
 		sels.add(mode);
@@ -141,6 +146,9 @@ public class Main{
 		options.add(sels, BorderLayout.CENTER);
 		over.addActionListener((e)->{
 			overwrite = over.isSelected();
+		});
+		subdir.addActionListener((e)->{
+			subdirectories = subdir.isSelected();
 		});
 		mode.addActionListener((e)->{
 			Main.mode = (ScalingMode)mode.getSelectedItem();
