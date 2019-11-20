@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import javax.swing.JOptionPane;
 
 import com.twelvemonkeys.image.ResampleOp;
 
@@ -76,11 +77,20 @@ public class Worker{
 				}catch(Exception e){
 					Dialog.showErrorDialog("An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage());
 					e.printStackTrace();
+				}catch(OutOfMemoryError e){
+					//Note that this can only really have been caused by failing to secure enough memory
+					//for the data structure backing the image. Given that the allocation failed the memory
+					//most likely was never allocated in the first place. Therefore catching this error
+					//should be relatively safe. And even if we do chrash again later due to running
+					//out of memory that is fine.
+					System.gc();
+					//TODO inform userJOptionPane.showMessageDialog(parentComponent, message);
+				}finally{
+					if(completed.incrementAndGet() == files.size()){
+						executor.shutdown();
+					}
+					listener.progress();
 				}
-				if(completed.incrementAndGet() == files.size()){
-					executor.shutdown();
-				}
-				listener.progress();
 			});
 		}
 	}
