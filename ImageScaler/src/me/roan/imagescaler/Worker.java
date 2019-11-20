@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import javax.swing.JOptionPane;
 
 import com.twelvemonkeys.image.ResampleOp;
 
@@ -84,7 +84,13 @@ public class Worker{
 					//should be relatively safe. And even if we do chrash again later due to running
 					//out of memory that is fine.
 					System.gc();
-					//TODO inform userJOptionPane.showMessageDialog(parentComponent, message);
+					Dialog.showMessageDialog(
+						"The program ran out of memory while scaling: "
+						+ img.getName()
+						+ "\nIf this happens more often try lowering the 'Thread' value."
+						+ "\n\nOn the off chance that you're running 32bit Java on a 64bit system"
+						+ "\nswitching to 64bit Java will most likely fix the issue too."
+					);
 				}finally{
 					if(completed.incrementAndGet() == files.size()){
 						executor.shutdown();
@@ -110,8 +116,8 @@ public class Worker{
 	/**
 	 * Rescales the given image in accordance with the
 	 * selected options.
-	 * @param file The image to rescale
-	 * @throws IOException When an IOException occurs
+	 * @param file The image to rescale.
+	 * @throws IOException When an IOException occurs.
 	 */
 	private static final void scale(File file) throws IOException{
 		String name = file.getAbsolutePath().replace(Main.inputDir.getAbsolutePath(), "");
@@ -119,30 +125,38 @@ public class Worker{
 		String ext = name.substring(dot + 1);
 		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
 		File out = new File(Main.outputDir, name);
+		
 		if(Main.overwrite || !out.exists()){
 			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
 			if(!readers.hasNext()){
 				throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
 			}
+			
 			ImageReader reader = readers.next();
-			reader.setInput(ImageIO.createImageInputStream(file));
-			BufferedImage img = reader.read(0);
-			BufferedImage output = new ResampleOp((int)Math.round(img.getWidth() * Main.scale), (int)Math.round(img.getHeight() * Main.scale), Main.mode.mode).filter(img, null);
-			out.createNewFile();
-			Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
-			if(!writers.hasNext()){
-				throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
+			try(ImageInputStream imageStream = ImageIO.createImageInputStream(file)){
+				reader.setInput(imageStream);
+				BufferedImage img = reader.read(0);
+				BufferedImage output = new ResampleOp((int)Math.round(img.getWidth() * Main.scale), (int)Math.round(img.getHeight() * Main.scale), Main.mode.mode).filter(img, null);
+				
+				Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
+				if(!writers.hasNext()){
+					throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
+				}
+				
+				out.createNewFile();
+				ImageWriter writer = writers.next();
+				try(ImageOutputStream stream = ImageIO.createImageOutputStream(out)){
+					writer.setOutput(stream);
+					writer.write(output);
+					
+					writer.dispose();
+					stream.flush();
+					stream.close();
+					reader.dispose();
+					img.flush();
+					output.flush();
+				}
 			}
-			ImageWriter writer = writers.next();
-			ImageOutputStream stream = ImageIO.createImageOutputStream(out);
-			writer.setOutput(stream);
-			writer.write(output);
-			writer.dispose();
-			stream.flush();
-			stream.close();
-			reader.dispose();
-			img.flush();
-			output.flush();
 		}
 	}
 
