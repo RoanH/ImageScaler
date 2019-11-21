@@ -73,6 +73,9 @@ public class Main{
 	 * matched by the {@link #renameRegex} regex.
 	 */
 	protected static String renameReplace = "";
+	/**
+	 * Whether or not to parse subdirectories.
+	 */
 	protected static boolean subdirectories = true;
 
 	/**
