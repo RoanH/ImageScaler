@@ -91,7 +91,7 @@ public class Worker{
 					//Note that this can only really have been caused by failing to secure enough memory
 					//for the data structure backing the image. Given that the allocation failed the memory
 					//most likely was never allocated in the first place. Therefore catching this error
-					//should be relatively safe. And even if we do chrash again later due to running
+					//should be relatively safe. And even if we do crash again later due to running
 					//out of memory that is fine.
 					System.gc();
 					Dialog.showMessageDialog(
