@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -63,11 +64,12 @@ public class Main{
 	/**
 	 * Regex used to match the files to convert
 	 */
-	protected static Pattern regex = Pattern.compile(".+@2x\\.(png|jpe*g|PNG|JPE*G)");
+	protected static Pattern regex = Pattern.compile(".+@2x");
 	/**
 	 * Regex that is used on all file names to optionally modify them
 	 */
 	protected static Pattern renameRegex = Pattern.compile("@2x");
+	protected static String[] extensions = new String[]{"png", "jpg", "jpeg"};
 	/**
 	 * Replacement string for file name parts
 	 * matched by the {@link #renameRegex} regex.
@@ -162,11 +164,17 @@ public class Main{
 
 		JPanel advoptions = new JPanel(new BorderLayout());
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
-		JPanel labelsadv = new JPanel(new GridLayout(3, 1, 0, 5));
-		JPanel selsadv = new JPanel(new GridLayout(3, 1, 0, 5));
+		JPanel labelsadv = new JPanel(new GridLayout(4, 1, 0, 5));
+		JPanel selsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
 		JTextField regex = new JTextField(Main.regex.pattern());
-		regex.setToolTipText("Matches the files that will be rescaled.");
+		regex.setToolTipText("Matches the files that will be rescaled (note .+ just matches any number of characters).");
+		StringJoiner joiner = new StringJoiner(", ");
+		for(String ext : extensions){
+			joiner.add(ext);
+		}
+		JTextField extensions = new JTextField(joiner.toString());
+		extensions.setToolTipText("File name extensions to match, case insensitive.");
 		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
 		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
 		JTextField renameReplace = new JTextField(Main.renameReplace);
@@ -175,9 +183,11 @@ public class Main{
 		rename.add(renameMatch);
 		rename.add(renameReplace);
 		labelsadv.add(new JLabel("File name regex: "));
+		labelsadv.add(new JLabel("File extensions: "));
 		labelsadv.add(new JLabel("File rename regex: "));
 		labelsadv.add(new JLabel("Threads: "));
 		selsadv.add(regex);
+		selsadv.add(extensions);
 		selsadv.add(rename);
 		selsadv.add(threads);
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
