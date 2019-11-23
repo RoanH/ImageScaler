@@ -1,6 +1,7 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
@@ -61,7 +62,7 @@ public class Main{
 	/**
 	 * Number of rescale threads to use
 	 */
-	protected static int threads = Runtime.getRuntime().availableProcessors();
+	protected static int threads = Math.min(4, Runtime.getRuntime().availableProcessors());
 	/**
 	 * Regex used to match the files to convert
 	 */
@@ -168,7 +169,7 @@ public class Main{
 		JPanel labelsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel selsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel helpadv = new JPanel(new GridLayout(4, 1, 0, 5));
-		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
+		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Runtime.getRuntime().availableProcessors(), 1));
 		JTextField regex = new JTextField(Main.regex.pattern());
 		regex.setToolTipText("Matches the files that will be rescaled (note .+ just matches any number of characters).");
 		StringJoiner joiner = new StringJoiner(", ");
@@ -192,11 +193,18 @@ public class Main{
 		selsadv.add(extensionField);
 		selsadv.add(rename);
 		selsadv.add(threads);
-		Insets margin = new Insets(0, 6, 0, 6);
 		JButton helpRegex = new JButton("?");
 		JButton helpExt = new JButton("?");
 		JButton helpRename = new JButton("?");
 		JButton helpThreads = new JButton("?");
+		System.out.println(helpRegex.getPreferredSize() + " | " + helpRegex.getInsets() + " | " + helpRegex.getMargin());
+		helpRegex.setPreferredSize(new Dimension(helpRegex.getPreferredSize().height, helpRegex.getPreferredSize().height));
+		helpExt.setPreferredSize(new Dimension(helpExt.getPreferredSize().height, helpExt.getPreferredSize().height));
+		helpRename.setPreferredSize(new Dimension(helpRename.getPreferredSize().height, helpRename.getPreferredSize().height));
+		helpThreads.setPreferredSize(new Dimension(helpThreads.getPreferredSize().height, helpThreads.getPreferredSize().height));
+
+		Insets margin = new Insets(0, 0, 0, 0);
+		
 		helpRegex.setMargin(margin);
 		helpExt.setMargin(margin);
 		helpRename.setMargin(margin);
@@ -217,6 +225,10 @@ public class Main{
 			//TODO regex help
 
 		});
+		helpadv.add(helpRegex);
+		helpadv.add(helpExt);
+		helpadv.add(helpRename);
+		helpadv.add(helpThreads);
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
 		advoptions.add(selsadv, BorderLayout.CENTER);
 		advoptions.add(helpadv, BorderLayout.LINE_END);
@@ -354,5 +366,6 @@ public class Main{
 		frame.setSize(400, panel.getPreferredSize().height + frame.getInsets().top + frame.getInsets().bottom);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		System.out.println(helpRegex.getPreferredSize() + " | " + helpRegex.getInsets() + " | " + helpRegex.getMargin());
 	}
 }
