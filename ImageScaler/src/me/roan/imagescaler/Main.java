@@ -25,6 +25,7 @@ import javax.swing.SwingConstants;
 
 import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
+import me.roan.util.ExclamationMarkPath;
 import me.roan.util.Util;
 
 /**
@@ -79,10 +80,14 @@ public class Main{
 
 	/**
 	 * Starts the program and shows the GUI
-	 * @param args No valid command line arguments
+	 * @param args The <tt>-relaunch</tt> argument
+	 *        can be used to relaunch from the
+	 *        temp directory if the current executable
+	 *        location is affected by a JDK bug.
 	 */
 	public static void main(String[] args){
 		Util.installUI();
+		ExclamationMarkPath.check(args);
 		
 		JFrame frame = new JFrame("Image Scaler");
 		Dialog.setDialogTitle("Image Scaler");
