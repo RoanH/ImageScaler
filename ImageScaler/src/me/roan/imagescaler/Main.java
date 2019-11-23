@@ -22,7 +22,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 
 import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
@@ -83,11 +82,7 @@ public class Main{
 	 * @param args No valid command line arguments
 	 */
 	public static void main(String[] args){
-		//TODO issue #23 switch Util.installUI();
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}catch(Throwable t){
-		}
+		Util.installUI();
 		
 		JFrame frame = new JFrame("Image Scaler");
 		Dialog.setDialogTitle("Image Scaler");
