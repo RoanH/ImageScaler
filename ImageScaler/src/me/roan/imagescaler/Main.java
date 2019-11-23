@@ -197,14 +197,11 @@ public class Main{
 		JButton helpExt = new JButton("?");
 		JButton helpRename = new JButton("?");
 		JButton helpThreads = new JButton("?");
-		System.out.println(helpRegex.getPreferredSize() + " | " + helpRegex.getInsets() + " | " + helpRegex.getMargin());
 		helpRegex.setPreferredSize(new Dimension(helpRegex.getPreferredSize().height, helpRegex.getPreferredSize().height));
 		helpExt.setPreferredSize(new Dimension(helpExt.getPreferredSize().height, helpExt.getPreferredSize().height));
 		helpRename.setPreferredSize(new Dimension(helpRename.getPreferredSize().height, helpRename.getPreferredSize().height));
 		helpThreads.setPreferredSize(new Dimension(helpThreads.getPreferredSize().height, helpThreads.getPreferredSize().height));
-
 		Insets margin = new Insets(0, 0, 0, 0);
-		
 		helpRegex.setMargin(margin);
 		helpExt.setMargin(margin);
 		helpRename.setMargin(margin);
@@ -366,6 +363,5 @@ public class Main{
 		frame.setSize(400, panel.getPreferredSize().height + frame.getInsets().top + frame.getInsets().bottom);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		System.out.println(helpRegex.getPreferredSize() + " | " + helpRegex.getInsets() + " | " + helpRegex.getMargin());
 	}
 }
