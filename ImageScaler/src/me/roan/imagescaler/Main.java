@@ -241,6 +241,7 @@ public class Main{
 				fin.setEnabled(false);
 				over.setEnabled(false);
 				samefolder.setEnabled(false);
+				subdir.setEnabled(false);
 				mode.setEnabled(false);
 				scalef.setEnabled(false);
 				threads.setEnabled(false);
@@ -267,6 +268,7 @@ public class Main{
 							mode.setEnabled(true);
 							scalef.setEnabled(true);
 							threads.setEnabled(true);
+							subdir.setEnabled(true);
 							start.setEnabled(true);
 							regex.setEnabled(true);
 							pause.setEnabled(false);
