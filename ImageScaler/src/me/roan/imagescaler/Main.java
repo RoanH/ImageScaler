@@ -173,8 +173,8 @@ public class Main{
 		for(String ext : extensions){
 			joiner.add(ext);
 		}
-		JTextField extensions = new JTextField(joiner.toString());
-		extensions.setToolTipText("File name extensions to match, case insensitive.");
+		JTextField extensionField = new JTextField(joiner.toString());
+		extensionField.setToolTipText("File name extensions to match, case insensitive.");
 		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
 		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
 		JTextField renameReplace = new JTextField(Main.renameReplace);
@@ -187,7 +187,7 @@ public class Main{
 		labelsadv.add(new JLabel("File rename regex: "));
 		labelsadv.add(new JLabel("Threads: "));
 		selsadv.add(regex);
-		selsadv.add(extensions);
+		selsadv.add(extensionField);
 		selsadv.add(rename);
 		selsadv.add(threads);
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
@@ -236,6 +236,10 @@ public class Main{
 					return;
 				}
 				Main.renameReplace = renameReplace.getText();
+				extensions = extensionField.getText().split(",");
+				for(int i = 0; i < extensions.length; i++){
+					extensions[i] = extensions[i].trim();
+				}
 				final int total = Worker.prepare();
 				if(total == 0){
 					ptext.setText("No files to rescale");

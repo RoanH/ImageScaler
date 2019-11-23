@@ -185,8 +185,21 @@ public class Worker{
 		for(File file : dir.listFiles()){
 			if(file.isDirectory() && Main.subdirectories){
 				list.addAll(getImages(file));
-			}else if(Main.regex.matcher(file.getName()).matches()){
-				list.add(file);
+			}else{
+				String name = file.getName();
+				int dot = name.lastIndexOf('.');
+				if(dot != -1){
+					String ext = name.substring(dot);
+					name = name.substring(0, dot - 1);
+					if(Main.regex.matcher(name).matches()){
+						for(String e : Main.extensions){
+							if(e.equalsIgnoreCase(ext)){
+								list.add(file);
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 		return list;
