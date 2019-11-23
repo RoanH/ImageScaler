@@ -193,23 +193,30 @@ public class Main{
 		selsadv.add(rename);
 		selsadv.add(threads);
 		Insets margin = new Insets(0, 6, 0, 6);
-		{
-			JButton b = new JButton("info");
-			//b.setMargin(margin);
-			helpadv.add(b);
-		}{
-			JButton b = new JButton("info");
-			//b.setMargin(margin);
-			helpadv.add(b);
-		}{
-			JButton b = new JButton("info");
-			//b.setMargin(margin);
-			helpadv.add(b);
-		}{
-			JButton b = new JButton("help");
-			//b.setMargin(margin);
-			helpadv.add(b);
-		}
+		JButton helpRegex = new JButton("?");
+		JButton helpExt = new JButton("?");
+		JButton helpRename = new JButton("?");
+		JButton helpThreads = new JButton("?");
+		helpRegex.setMargin(margin);
+		helpExt.setMargin(margin);
+		helpRename.setMargin(margin);
+		helpThreads.setMargin(margin);
+		helpRegex.addActionListener(e->{
+			
+			//TODO regex help
+		});
+		helpExt.addActionListener(e->{
+			//TODO regex help
+
+		});
+		helpRename.addActionListener(e->{
+			//TODO regex help
+
+		});
+		helpThreads.addActionListener(e->{
+			//TODO regex help
+
+		});
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
 		advoptions.add(selsadv, BorderLayout.CENTER);
 		advoptions.add(helpadv, BorderLayout.LINE_END);
@@ -283,6 +290,10 @@ public class Main{
 				start.setEnabled(false);
 				regex.setEnabled(false);
 				pause.setEnabled(true);
+				helpRegex.setEnabled(false);
+				helpExt.setEnabled(false);
+				helpRename.setEnabled(false);
+				helpThreads.setEnabled(false);
 				
 				final Object lock = new Object();
 				Worker.start(()->{
@@ -307,6 +318,10 @@ public class Main{
 							start.setEnabled(true);
 							regex.setEnabled(true);
 							pause.setEnabled(false);
+							helpRegex.setEnabled(true);
+							helpExt.setEnabled(true);
+							helpRename.setEnabled(true);
+							helpThreads.setEnabled(true);
 						}
 					}
 				});
