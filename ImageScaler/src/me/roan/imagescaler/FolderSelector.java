@@ -17,12 +17,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import me.roan.util.Dialog;
 
 /**
  * Represents a small component used to select a folder
@@ -35,10 +36,6 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 8349454444582863534L;
-	/**
-	 * The file chooser that is used.
-	 */
-	protected static JFileChooser chooser;
 	/**
 	 * Consumer that gets notified when the select folder or file changes.
 	 */
@@ -134,8 +131,9 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-			field.setText(chooser.getSelectedFile().getAbsolutePath());
+		File file = Dialog.showFolderOpenDialog();
+		if(file != null){
+			field.setText(file.getAbsolutePath());
 		}
 	}
 	
@@ -184,11 +182,5 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 				//Pity, but not important
 			}
 		}
-	}
-	
-	static{
-		chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		chooser.setMultiSelectionEnabled(false);
 	}
 }
