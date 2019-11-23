@@ -3,6 +3,7 @@ package me.roan.imagescaler;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
 import java.util.StringJoiner;
@@ -166,6 +167,7 @@ public class Main{
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
 		JPanel labelsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel selsadv = new JPanel(new GridLayout(4, 1, 0, 5));
+		JPanel helpadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
 		JTextField regex = new JTextField(Main.regex.pattern());
 		regex.setToolTipText("Matches the files that will be rescaled (note .+ just matches any number of characters).");
@@ -179,7 +181,7 @@ public class Main{
 		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
 		JTextField renameReplace = new JTextField(Main.renameReplace);
 		renameReplace.setToolTipText("The string to use as a replacement for the regions found by the regex.");
-		JPanel rename = new JPanel(new GridLayout(1, 2, 4, 0));
+		JPanel rename = new JPanel(new GridLayout(1, 3, 4, 0));
 		rename.add(renameMatch);
 		rename.add(renameReplace);
 		labelsadv.add(new JLabel("File name regex: "));
@@ -190,8 +192,27 @@ public class Main{
 		selsadv.add(extensionField);
 		selsadv.add(rename);
 		selsadv.add(threads);
+		Insets margin = new Insets(0, 6, 0, 6);
+		{
+			JButton b = new JButton("info");
+			//b.setMargin(margin);
+			helpadv.add(b);
+		}{
+			JButton b = new JButton("info");
+			//b.setMargin(margin);
+			helpadv.add(b);
+		}{
+			JButton b = new JButton("info");
+			//b.setMargin(margin);
+			helpadv.add(b);
+		}{
+			JButton b = new JButton("help");
+			//b.setMargin(margin);
+			helpadv.add(b);
+		}
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
 		advoptions.add(selsadv, BorderLayout.CENTER);
+		advoptions.add(helpadv, BorderLayout.LINE_END);
 
 		JPanel progress = new JPanel(new BorderLayout());
 		progress.setBorder(BorderFactory.createTitledBorder("Progress"));
