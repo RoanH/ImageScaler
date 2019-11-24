@@ -189,8 +189,8 @@ public class Worker{
 				String name = file.getName();
 				int dot = name.lastIndexOf('.');
 				if(dot != -1){
-					String ext = name.substring(dot);
-					name = name.substring(0, dot - 1);
+					String ext = name.substring(dot + 1);
+					name = name.substring(0, dot);
 					if(Main.regex.matcher(name).matches()){
 						for(String e : Main.extensions){
 							if(e.equalsIgnoreCase(ext)){
