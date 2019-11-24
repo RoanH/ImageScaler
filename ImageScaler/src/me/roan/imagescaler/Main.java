@@ -1,10 +1,13 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -59,15 +62,19 @@ public class Main{
 	/**
 	 * Number of rescale threads to use
 	 */
-	protected static int threads = Runtime.getRuntime().availableProcessors();
+	protected static int threads = Math.min(4, Runtime.getRuntime().availableProcessors());
 	/**
 	 * Regex used to match the files to convert
 	 */
-	protected static Pattern regex = Pattern.compile(".+@2x\\.(png|jpe*g|PNG|JPE*G)");
+	protected static Pattern regex = Pattern.compile(".+@2x");
 	/**
 	 * Regex that is used on all file names to optionally modify them
 	 */
 	protected static Pattern renameRegex = Pattern.compile("@2x");
+	/**
+	 * List of file extensions that is used to match the files to convert.
+	 */
+	protected static String[] extensions = new String[]{"png", "jpg", "jpeg"};
 	/**
 	 * Replacement string for file name parts
 	 * matched by the {@link #renameRegex} regex.
@@ -162,26 +169,100 @@ public class Main{
 
 		JPanel advoptions = new JPanel(new BorderLayout());
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
-		JPanel labelsadv = new JPanel(new GridLayout(3, 1, 0, 5));
-		JPanel selsadv = new JPanel(new GridLayout(3, 1, 0, 5));
-		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Main.threads, 1));
+		JPanel labelsadv = new JPanel(new GridLayout(4, 1, 0, 5));
+		JPanel selsadv = new JPanel(new GridLayout(4, 1, 0, 5));
+		JPanel helpadv = new JPanel(new GridLayout(4, 1, 0, 5));
+		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Runtime.getRuntime().availableProcessors(), 1));
 		JTextField regex = new JTextField(Main.regex.pattern());
-		regex.setToolTipText("Matches the files that will be rescaled.");
+		regex.setToolTipText("Matches the files that will be rescaled (note .+ just matches any number of characters).");
+		StringJoiner joiner = new StringJoiner(", ");
+		for(String ext : extensions){
+			joiner.add(ext);
+		}
+		JTextField extensionField = new JTextField(joiner.toString());
+		extensionField.setToolTipText("File name extensions to match, case insensitive.");
 		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
 		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
 		JTextField renameReplace = new JTextField(Main.renameReplace);
 		renameReplace.setToolTipText("The string to use as a replacement for the regions found by the regex.");
-		JPanel rename = new JPanel(new GridLayout(1, 2, 4, 0));
+		JPanel rename = new JPanel(new GridLayout(1, 3, 4, 0));
 		rename.add(renameMatch);
 		rename.add(renameReplace);
 		labelsadv.add(new JLabel("File name regex: "));
+		labelsadv.add(new JLabel("File extensions: "));
 		labelsadv.add(new JLabel("File rename regex: "));
 		labelsadv.add(new JLabel("Threads: "));
 		selsadv.add(regex);
+		selsadv.add(extensionField);
 		selsadv.add(rename);
 		selsadv.add(threads);
+		JButton helpRegex = new JButton("?");
+		JButton helpExt = new JButton("?");
+		JButton helpRename = new JButton("?");
+		JButton helpThreads = new JButton("?");
+		helpRegex.setPreferredSize(new Dimension(helpRegex.getPreferredSize().height, helpRegex.getPreferredSize().height));
+		helpExt.setPreferredSize(new Dimension(helpExt.getPreferredSize().height, helpExt.getPreferredSize().height));
+		helpRename.setPreferredSize(new Dimension(helpRename.getPreferredSize().height, helpRename.getPreferredSize().height));
+		helpThreads.setPreferredSize(new Dimension(helpThreads.getPreferredSize().height, helpThreads.getPreferredSize().height));
+		Insets margin = new Insets(0, 0, 0, 0);
+		helpRegex.setMargin(margin);
+		helpExt.setMargin(margin);
+		helpRename.setMargin(margin);
+		helpThreads.setMargin(margin);
+		String regexInfo = "Quick regex help:\n"
+			+ "- A dot '.' matches any character.\n"
+			+ "- A plus '+' matches the previous character 1~infinity times.\n"
+			+ "(note that this makes '.+' a type of wildcard that matches anything)\n"
+			+ "- A star '*' matches the previous character 0~infinity times.\n"
+			+ "- A question mark '?' matches the previous character 0~1 times.\n"
+			+ "- You have to write '\\.' if you want to match an actual dot.\n"
+			+ "It shouldn't be too hard to find more information online on\n"
+			+ "how to match more complicated patterns.";
+		helpRegex.addActionListener(e->{
+			Dialog.showMessageDialog(
+				"This field specifies the regex used to match the names of\n"
+				+ "files to rescale. The default of '.+@2x' matches only\n"
+				+ "files with names that end with '@2x'.\n\n"
+				+ regexInfo
+			);
+		});
+		helpExt.addActionListener(e->{
+			Dialog.showMessageDialog(
+				"This field specifies a comma separated list of file extensions\n"
+				+ "to match. File extensions are case insensitive."
+			);
+		});
+		helpRename.addActionListener(e->{
+			Dialog.showMessageDialog(
+				"These two fields specify an action to generate a new name from\n"
+				+ "the name of the original file. Much like the file name regex\n"
+				+ "the first field contains a regex that matches part of the name\n"
+				+ "of the original file. By default it matches the '@2x' part of\n"
+				+ "a file name. The second field then specifies a string to replace\n"
+				+ "this part of the filename with. By default this field is empty\n"
+				+ "meaning that the '@2x' part of file name is simply removed.\n\n"
+				+ regexInfo
+			);
+		});
+		helpThreads.addActionListener(e->{
+			Dialog.showMessageDialog(
+				"This setting controls how many images can be rescaling at the same\n"
+				+ "time. The higher this number, the faster the rescaling will be done.\n"
+				+ "However setting this to a high number will also use up more CPU\n"
+				+ "resources and more RAM memory. While CPU isn't that much of an issue\n"
+				+ "if insufficient RAM memory is available the program will fail to\n"
+				+ "rescale images and might even crash. If you plan on scaling very\n"
+				+ "large images then you should either keep this value low or allocate\n"
+				+ "a lot of RAM to this process."
+			);
+		});
+		helpadv.add(helpRegex);
+		helpadv.add(helpExt);
+		helpadv.add(helpRename);
+		helpadv.add(helpThreads);
 		advoptions.add(labelsadv, BorderLayout.LINE_START);
 		advoptions.add(selsadv, BorderLayout.CENTER);
+		advoptions.add(helpadv, BorderLayout.LINE_END);
 
 		JPanel progress = new JPanel(new BorderLayout());
 		progress.setBorder(BorderFactory.createTitledBorder("Progress"));
@@ -226,6 +307,10 @@ public class Main{
 					return;
 				}
 				Main.renameReplace = renameReplace.getText();
+				extensions = extensionField.getText().split(",");
+				for(int i = 0; i < extensions.length; i++){
+					extensions[i] = extensions[i].trim();
+				}
 				final int total = Worker.prepare();
 				if(total == 0){
 					ptext.setText("No files to rescale");
@@ -248,6 +333,10 @@ public class Main{
 				start.setEnabled(false);
 				regex.setEnabled(false);
 				pause.setEnabled(true);
+				helpRegex.setEnabled(false);
+				helpExt.setEnabled(false);
+				helpRename.setEnabled(false);
+				helpThreads.setEnabled(false);
 				
 				final Object lock = new Object();
 				Worker.start(()->{
@@ -272,6 +361,10 @@ public class Main{
 							start.setEnabled(true);
 							regex.setEnabled(true);
 							pause.setEnabled(false);
+							helpRegex.setEnabled(true);
+							helpExt.setEnabled(true);
+							helpRename.setEnabled(true);
+							helpThreads.setEnabled(true);
 						}
 					}
 				});
