@@ -6,7 +6,7 @@ So a little while ago a friend of mine came up with the idea to write a program 
 And now that program is done :D.
 
 The program itself looks like this:    
-![GUI](https://i.imgur.com/5eU6t4U.png)
+![GUI](https://i.imgur.com/vZMgkkf.png)
 
 By default it will look for all the files in the input folder that have a name that ends with @2x and scale them down by a factor 2. It'll also remove the @2x part from the file name of the generated SD image. 
 However I decided to make all the filters and parameters configurable so you could actually also use this program to upscale or downscale a whole folder of images.
@@ -15,8 +15,8 @@ Well I hope some of you find this program useful :)
 And if you find any bugs or think of nice features feel free to report/request them. 
 
 ## Downloads
-[Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.2/ImageScaler-v2.2.exe)<br>
-[Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.2/ImageScaler-v2.2.jar)
+[Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.exe)<br>
+[Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.jar)
 
 All releases: [releases](https://github.com/RoanH/ImageScaler/releases)<br>
 GitHub repository: [here](https://github.com/RoanH/ImageScaler)
