@@ -71,6 +71,9 @@ public class Main{
 	 * Regex that is used on all file names to optionally modify them
 	 */
 	protected static Pattern renameRegex = Pattern.compile("@2x");
+	/**
+	 * List of file extensions that is used to match the files to convert.
+	 */
 	protected static String[] extensions = new String[]{"png", "jpg", "jpeg"};
 	/**
 	 * Replacement string for file name parts
