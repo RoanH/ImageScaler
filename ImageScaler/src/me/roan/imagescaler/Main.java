@@ -249,11 +249,12 @@ public class Main{
 				"This setting controls how many images can be rescaling at the same\n"
 				+ "time. The higher this number, the faster the rescaling will be done.\n"
 				+ "However setting this to a high number will also use up more CPU\n"
-				+ "resources and more RAM memory. While CPU isn't that much of an issue\n"
-				+ "if insufficient RAM memory is available the program will fail to\n"
-				+ "rescale images and might even crash. If you plan on scaling very\n"
-				+ "large images then you should either keep this value low or allocate\n"
-				+ "a lot of RAM to this process."
+				+ "resources and more RAM. While CPU isn't that much of an issue\n"
+				+ "if insufficient RAM is available the program will fail to rescale\n"
+				+ "images and might even crash. If you plan on scaling very large\n"
+				+ "images then you should either keep this value low or allocate\n"
+				+ "a lot of RAM to this process.\n\n"
+				+ "Allocated RAM: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024)) + "MB"
 			);
 		});
 		helpadv.add(helpRegex);
