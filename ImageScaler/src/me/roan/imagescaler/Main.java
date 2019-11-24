@@ -206,21 +206,52 @@ public class Main{
 		helpExt.setMargin(margin);
 		helpRename.setMargin(margin);
 		helpThreads.setMargin(margin);
+		String regexInfo = "Quick regex help:\n"
+			+ "- A dot '.' matches any character.\n"
+			+ "- A plus '+' matches the previous character 1~infinity times.\n"
+			+ "(note that this makes '.+' a type of wildcard that matches anything)\n"
+			+ "- A star '*' matches the previous character 0~infinity times.\n"
+			+ "- A question mark '?' matches the previous character 0~1 times.\n"
+			+ "- You have to write '\\.' if you want to match an actual dot.\n"
+			+ "It shouldn't be too hard to find more information online on\n"
+			+ "how to match more complicated patterns.";
 		helpRegex.addActionListener(e->{
-			
-			//TODO regex help
+			Dialog.showMessageDialog(
+				"This field specifies the regex used to match the names of\n"
+				+ "files to rescale. The default of '.+@2x' matches only\n"
+				+ "files with names that end with '@2x'.\n\n"
+				+ regexInfo
+			);
 		});
 		helpExt.addActionListener(e->{
-			//TODO regex help
-
+			Dialog.showMessageDialog(
+				"This field specifies a comma separated list of file extensions\n"
+				+ "to match. File extensions are case insensitive."
+			);
 		});
 		helpRename.addActionListener(e->{
-			//TODO regex help
-
+			Dialog.showMessageDialog(
+				"These two fields specify an action to generate a new name from\n"
+				+ "the name of the original file. Much like the file name regex\n"
+				+ "the first field contains a regex that matches part of the name\n"
+				+ "of the original file. By default it matches the '@2x' part of\n"
+				+ "a file name. The second field then specifies a string to replace\n"
+				+ "this part of the filename with. By default this field is empty\n"
+				+ "meaning that the '@2x' part of file name is simply removed.\n\n"
+				+ regexInfo
+			);
 		});
 		helpThreads.addActionListener(e->{
-			//TODO regex help
-
+			Dialog.showMessageDialog(
+				"This setting controls how many images can be rescaling at the same\n"
+				+ "time. The higher this number, the faster the rescaling will be done.\n"
+				+ "However setting this to a high number will also use up more CPU\n"
+				+ "resources and more RAM memory. While CPU isn't that much of an issue\n"
+				+ "if insufficient RAM memory is available the program will fail to\n"
+				+ "rescale images and might even crash. If you plan on scaling very\n"
+				+ "large images then you should either keep this value low or allocate\n"
+				+ "a lot of RAM to this process."
+			);
 		});
 		helpadv.add(helpRegex);
 		helpadv.add(helpExt);
