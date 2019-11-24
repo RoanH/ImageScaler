@@ -113,7 +113,7 @@ public class Main{
 		FolderSelector fout = new FolderSelector();
 		FolderSelector fin = new FolderSelector(data->{
 			if(samefolder.isSelected()){
-				fout.setText(data.contains(".") ? "Not applicable input is a file" : data);
+				fout.setText(data.contains(".") ? "Not applicable, input is a file" : data);
 			}
 		});
 		samefolder.addActionListener((e)->{
