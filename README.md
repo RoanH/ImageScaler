@@ -15,11 +15,13 @@ Well I hope some of you find this program useful :)
 And if you find any bugs or think of nice features feel free to report/request them. 
 
 ## Downloads
-[Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.exe)<br>
-[Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.jar)
+_Requires Java 8 or higher_
+- [Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.exe)<br>
+- [Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.jar)
 
 All releases: [releases](https://github.com/RoanH/ImageScaler/releases)<br>
 GitHub repository: [here](https://github.com/RoanH/ImageScaler)
+Forum post: [post](https://osu.ppy.sh/community/forums/topics/762684)
 
 Program icon by: [my name is hi](https://osu.ppy.sh/u/4738743)
 
