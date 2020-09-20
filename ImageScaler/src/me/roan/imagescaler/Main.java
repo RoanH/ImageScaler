@@ -399,7 +399,7 @@ public class Main{
 		links.add(forum);
 		links.add(git);
 		version.add(links);
-		version.add(Util.getVersionLabel("ImageScaler", "v2.3"));//XXX the version number - don't forget build.gradle
+		version.add(Util.getVersionLabel("ImageScaler", "v2.4"));//XXX the version number - don't forget build.gradle
 		forum.addMouseListener(new ClickableLink("https://osu.ppy.sh/community/forums/topics/762684"));
 		git.addMouseListener(new ClickableLink("https://github.com/RoanH/ImageScaler"));
 

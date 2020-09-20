@@ -16,8 +16,8 @@ And if you find any bugs or think of nice features feel free to report/request t
 
 ## Downloads
 _Requires Java 8 or higher_
-- [Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.exe)
-- [Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.3/ImageScaler-v2.3.jar)
+- [Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.4/ImageScaler-v2.4.exe)
+- [Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.4/ImageScaler-v2.4.jar)
 
 All releases: [releases](https://github.com/RoanH/ImageScaler/releases)    
 GitHub repository: [here](https://github.com/RoanH/ImageScaler)    
