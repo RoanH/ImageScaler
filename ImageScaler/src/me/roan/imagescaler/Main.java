@@ -362,7 +362,7 @@ public class Main{
 					public void done(){
 						if(!exceptions.isEmpty()){
 							JPanel msg = new JPanel(new BorderLayout());
-							msg.add(new JLabel("Scaling finished with some errors. These files we consequently skipped:"), BorderLayout.PAGE_START);
+							msg.add(new JLabel("Scaling finished with " + (exceptions.size() == 1 ? "1 error" : (exceptions.size() + " errors")) + ". These files were consequently skipped:"), BorderLayout.PAGE_START);
 							msg.add(new JScrollPane(new JList<String>(exceptions.toArray(new String[0]))), BorderLayout.CENTER);
 							Dialog.showMessageDialog(msg);
 						}
