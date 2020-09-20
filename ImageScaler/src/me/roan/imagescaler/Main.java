@@ -7,6 +7,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -19,13 +21,16 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
+import me.roan.imagescaler.Worker.ProgressListener;
 import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
 import me.roan.util.ExclamationMarkPath;
@@ -339,34 +344,48 @@ public class Main{
 				helpRename.setEnabled(false);
 				helpThreads.setEnabled(false);
 				
-				final Object lock = new Object();
-				Worker.start(()->{
-					synchronized(lock){
-						int done = Worker.completed.get();
-						bar.setValue(done);
-						ptext.setText(done + "/" + total);
+				List<String> exceptions = new ArrayList<String>(0);
+				Worker.start(new ProgressListener(){
+					@Override
+					public void progress(int completed){
+						bar.setValue(completed);
+						ptext.setText(completed + "/" + total);
 						progress.repaint();
-						if(done == total){
-							renameReplace.setEnabled(true);
-							renameMatch.setEnabled(true);
-							fin.setEnabled(true);
-							samefolder.setEnabled(true);
-							if(!samefolder.isSelected()){
-								fout.setEnabled(true);
-							}
-							over.setEnabled(true);
-							mode.setEnabled(true);
-							scalef.setEnabled(true);
-							threads.setEnabled(true);
-							subdir.setEnabled(true);
-							start.setEnabled(true);
-							regex.setEnabled(true);
-							pause.setEnabled(false);
-							helpRegex.setEnabled(true);
-							helpExt.setEnabled(true);
-							helpRename.setEnabled(true);
-							helpThreads.setEnabled(true);
+					}
+
+					@Override
+					public void error(File file, Exception e){
+						exceptions.add(file.getAbsolutePath() + ": " + e.getMessage());
+					}
+
+					@Override
+					public void done(){
+						if(!exceptions.isEmpty()){
+							JPanel msg = new JPanel(new BorderLayout());
+							msg.add(new JLabel("Scaling finished with " + (exceptions.size() == 1 ? "1 error" : (exceptions.size() + " errors")) + ". These files were consequently skipped:"), BorderLayout.PAGE_START);
+							msg.add(new JScrollPane(new JList<String>(exceptions.toArray(new String[0]))), BorderLayout.CENTER);
+							Dialog.showMessageDialog(msg);
 						}
+						
+						renameReplace.setEnabled(true);
+						renameMatch.setEnabled(true);
+						fin.setEnabled(true);
+						samefolder.setEnabled(true);
+						if(!samefolder.isSelected()){
+							fout.setEnabled(true);
+						}
+						over.setEnabled(true);
+						mode.setEnabled(true);
+						scalef.setEnabled(true);
+						threads.setEnabled(true);
+						subdir.setEnabled(true);
+						start.setEnabled(true);
+						regex.setEnabled(true);
+						pause.setEnabled(false);
+						helpRegex.setEnabled(true);
+						helpExt.setEnabled(true);
+						helpRename.setEnabled(true);
+						helpThreads.setEnabled(true);
 					}
 				});
 			}

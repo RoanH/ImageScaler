@@ -28,7 +28,7 @@ import me.roan.util.Dialog;
 /**
  * Represents a small component used to select a folder
  * or file. Folders or files can be select with this
- * component either by trying, dropping or pasting.
+ * component either by typing, dropping or pasting.
  * @author Roan
  */
 public class FolderSelector extends JPanel implements DropTargetListener, DocumentListener, ActionListener{
