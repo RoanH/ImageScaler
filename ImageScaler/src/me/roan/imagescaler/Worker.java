@@ -85,7 +85,9 @@ public class Worker{
 				try{
 					scale(img);
 				}catch(Exception e){
-					Dialog.showErrorDialog("An internal error occurred while scaling: " + img.getName() + "\n" + e.getMessage());
+					synchronized(listener){
+						listener.error(img, e);
+					}
 					e.printStackTrace();
 				}catch(OutOfMemoryError e){
 					//Note that this can only really have been caused by failing to secure enough memory
@@ -103,25 +105,30 @@ public class Worker{
 						+ "\nswitching to 64bit Java will most likely fix the issue too."
 					);
 				}finally{
-					if(completed.incrementAndGet() == files.size()){
-						executor.shutdown();
+					synchronized(listener){
+						int finished = completed.incrementAndGet();
+						listener.progress(finished);
+						if(finished == files.size()){
+							listener.done();
+							executor.shutdown();
+						}
 					}
-					listener.progress();
 				}
 			});
 		}
 	}
 
 	/**
-	 * Simply interface that gets called when progress was made
+	 * Simple interface that gets called when progress was made
 	 * @author Roan
 	 */
-	@FunctionalInterface
 	protected static abstract interface ProgressListener{
 		/**
 		 * Called when progress was made
 		 */
-		public abstract void progress();
+		public abstract void progress(int completed);
+		public abstract void error(File file, Exception e);
+		public abstract void done();
 	}
 
 	/**
