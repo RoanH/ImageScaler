@@ -123,17 +123,20 @@ public class Worker{
 	 * @author Roan
 	 */
 	protected static abstract interface ProgressListener{
+		
 		/**
 		 * Called when progress was made.
 		 * @param completed Total number of files completed so far.
 		 */
 		public abstract void progress(int completed);
+		
 		/**
 		 * Called when an error occurred.
 		 * @param file The file that caused the error.
 		 * @param e The exception.
 		 */
 		public abstract void error(File file, Exception e);
+		
 		/**
 		 * Called when all files have finished processing.
 		 */

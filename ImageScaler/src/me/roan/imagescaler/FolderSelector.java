@@ -1,29 +1,17 @@
 package me.roan.imagescaler;
 
 import java.awt.BorderLayout;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import me.roan.util.Dialog;
+import me.roan.util.FileTextField;
+import me.roan.util.FileTextField.FileChangeListener;
 
 /**
  * Represents a small component used to select a folder
@@ -31,19 +19,16 @@ import me.roan.util.Dialog;
  * component either by typing, dropping or pasting.
  * @author Roan
  */
-public class FolderSelector extends JPanel implements DropTargetListener, DocumentListener, ActionListener{
+public class FolderSelector extends JPanel implements ActionListener{
 	/**
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 8349454444582863534L;
 	/**
-	 * Consumer that gets notified when the select folder or file changes.
+	 * File text field used to show the path
+	 * and handle drag drop actions.
 	 */
-	private Consumer<String> listener;
-	/**
-	 * Text field to display and directly modify the selected element.
-	 */
-	private JTextField field = new JTextField("");
+	private FileTextField field = new FileTextField();
 	/**
 	 * Button to open the file chooser.
 	 */
@@ -62,27 +47,16 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	 * @param listener The listener to send selection
 	 *        changes to (can be <code>null</code>).
 	 */
-	public FolderSelector(Consumer<String> listener){
+	public FolderSelector(FileChangeListener listener){
 		super(new BorderLayout());
 		
-		this.listener = listener;
+		field.setListener(listener);
 		
 		this.add(field, BorderLayout.CENTER);
 		this.add(select, BorderLayout.LINE_END);
 		this.add(new JLabel("Folder: "), BorderLayout.LINE_START);
 		
 		select.addActionListener(this);
-		new DropTarget(field, this);
-		field.getDocument().addDocumentListener(this);
-	}
-	
-	/**
-	 * Sets the listener to send selection updates to.
-	 * @param listener The listener to send selection
-	 *        changes to (can be <code>null</code>).
-	 */
-	public void setListener(Consumer<String> listener){
-		this.listener = listener;
 	}
 	
 	/**
@@ -99,7 +73,7 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	 * @return The selected target.
 	 */
 	public File getFile(){
-		return new File(getText());
+		return field.getFile();
 	}
 	
 	/**
@@ -109,17 +83,6 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 	 */
 	public void setText(String text){
 		field.setText(text);
-	}
-	
-	/**
-	 * Sends a content update to the
-	 * listener if one is set.
-	 * @see #setListener(Consumer)
-	 */
-	private void update(){
-		if(listener != null){
-			listener.accept(field.getText());
-		}
 	}
 	
 	@Override
@@ -134,53 +97,6 @@ public class FolderSelector extends JPanel implements DropTargetListener, Docume
 		File file = Dialog.showFolderOpenDialog();
 		if(file != null){
 			field.setText(file.getAbsolutePath());
-		}
-	}
-	
-	@Override
-	public void insertUpdate(DocumentEvent e){
-		update();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e){
-		update();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e){
-		update();
-	}
-
-	@Override
-	public void dragEnter(DropTargetDragEvent dtde){		
-	}
-
-	@Override
-	public void dragOver(DropTargetDragEvent dtde){		
-	}
-
-	@Override
-	public void dropActionChanged(DropTargetDragEvent dtde){		
-	}
-
-	@Override
-	public void dragExit(DropTargetEvent dte){		
-	}
-
-	@Override
-	public void drop(DropTargetDropEvent dtde){
-		if(dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && this.isEnabled()){
-			try{
-				dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-				@SuppressWarnings("unchecked")
-				List<File> files = (List<File>)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-				if(files.size() > 0){
-					field.setText(files.get(0).getAbsolutePath());
-				}
-			}catch(UnsupportedFlavorException | IOException e){
-				//Pity, but not important
-			}
 		}
 	}
 }

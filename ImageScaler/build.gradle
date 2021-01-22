@@ -40,7 +40,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'com.github.RoanH:Util:v1.4'
+	implementation 'com.github.RoanH:Util:v1.5'
 	implementation "com.twelvemonkeys.imageio:imageio-bmp:3.6"
 	implementation "com.twelvemonkeys.imageio:imageio-jpeg:3.6"
 	implementation "com.twelvemonkeys.imageio:imageio-tiff:3.6"
