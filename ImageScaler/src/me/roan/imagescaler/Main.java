@@ -31,10 +31,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
 import me.roan.imagescaler.Worker.ProgressListener;
-import me.roan.util.ClickableLink;
-import me.roan.util.Dialog;
-import me.roan.util.ExclamationMarkPath;
-import me.roan.util.Util;
+import dev.roanh.util.ClickableLink;
+import dev.roanh.util.Dialog;
+import dev.roanh.util.ExclamationMarkPath;
+import dev.roanh.util.Util;
 
 /**
  * Relatively simple program that rescales images

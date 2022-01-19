@@ -9,9 +9,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import me.roan.util.Dialog;
-import me.roan.util.FileTextField;
-import me.roan.util.FileTextField.FileChangeListener;
+import dev.roanh.util.Dialog;
+import dev.roanh.util.FileTextField;
+import dev.roanh.util.FileTextField.FileChangeListener;
 
 /**
  * Represents a small component used to select a folder

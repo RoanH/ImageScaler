@@ -21,7 +21,7 @@ import javax.imageio.stream.ImageOutputStream;
 
 import com.twelvemonkeys.image.ResampleOp;
 
-import me.roan.util.Dialog;
+import dev.roanh.util.Dialog;
 
 /**
  * Class responsible for actually scaling all
