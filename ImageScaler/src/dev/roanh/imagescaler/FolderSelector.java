@@ -70,11 +70,11 @@ public class FolderSelector extends JPanel implements ActionListener{
 	}
 	
 	/**
-	 * Gets the selected target as a file.
+	 * Gets the selected target as a path.
 	 * @return The selected target.
 	 */
-	public File getFile(){
-		return field.getFile();
+	public Path getFile(){
+		return field.getPath();
 	}
 	
 	/**

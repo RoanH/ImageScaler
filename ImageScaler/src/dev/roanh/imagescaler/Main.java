@@ -5,9 +5,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -41,18 +41,17 @@ import dev.roanh.util.Util;
  * Relatively simple program that rescales images
  * in a folder that match a regex
  * and writes them to some other folder.
- * 
  * @author Roan
  */
 public class Main{
 	/**
 	 * The directory to write rescaled images to
 	 */
-	protected static File outputDir;
+	protected static Path outputDir;
 	/**
 	 * The directory to search for images to rescale
 	 */
-	protected static File inputDir;
+	protected static Path inputDir;
 	/**
 	 * The factor to scale the input images by
 	 */
@@ -297,10 +296,10 @@ public class Main{
 		});
 		start.addActionListener((e)->{
 			inputDir = fin.getFile();
-			if(!inputDir.exists()){
+			if(Files.notExists(inputDir)){
 				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
-				outputDir = inputDir.isDirectory() ? new File(fout.getText()) : null;
+				outputDir = Files.isDirectory(inputDir) ? fout.getFile() : null;
 				try{
 					Main.regex = Pattern.compile(regex.getText());
 				}catch(PatternSyntaxException e1){
@@ -318,7 +317,7 @@ public class Main{
 				for(int i = 0; i < extensions.length; i++){
 					extensions[i] = extensions[i].trim();
 				}
-				final int total = Worker.prepare();
+				final int total = Worker.prepare(inputDir, outputDir);
 				if(total == 0){
 					ptext.setText("No files to rescale");
 					bar.setMaximum(1);
@@ -355,8 +354,8 @@ public class Main{
 					}
 
 					@Override
-					public void error(File file, Exception e){
-						exceptions.add(file.getAbsolutePath() + ": " + e.getMessage());
+					public void error(Path file, Exception e){
+						exceptions.add(file.toAbsolutePath().toString() + ": " + e.getMessage());
 					}
 
 					@Override

@@ -4,11 +4,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +42,7 @@ public class Worker{
 	/**
 	 * List of files to scale
 	 */
-	private static List<File> files;
+	private static List<Path> files;
 
 	/**
 	 * Reads the list of images to rescale
@@ -49,13 +51,32 @@ public class Worker{
 	 * that are going to be rescaled
 	 * @return The number of images that
 	 *         are going to be rescaled
+	 * @throws IOException 
 	 */
-	public static final int prepare(){
-		if(Main.inputDir.isDirectory()){
-			files = getImages(Main.inputDir);
-		}else{
-			files = Collections.singletonList(Main.inputDir);
-			Main.inputDir = Main.inputDir.getParentFile();
+	public static final int prepare(Path input, Path output) throws IOException{
+		files.clear();
+		if(Files.isDirectory(input)){
+			Files.find(input, Main.subdirectories ? Integer.MAX_VALUE : 1, (path, attr)->{
+				if(attr.isRegularFile()){
+					String name = path.getFileName().toString();
+					int dot = name.lastIndexOf('.');
+					if(dot != -1){
+						String ext = name.substring(dot + 1);
+						name = name.substring(0, dot);
+						if(Main.regex.matcher(name).matches()){
+							for(String e : Main.extensions){
+								if(e.equalsIgnoreCase(ext)){
+									return true;
+								}
+							}
+						}
+					}
+				}
+				return false;
+			}).forEach(files::add);
+		}else if(Files.isRegularFile(input)){
+			files = Collections.singletonList(input);
+			Main.inputDir = Main.inputDir.getParent();
 			if(Main.outputDir == null){
 				Main.outputDir = Main.inputDir;
 			}
@@ -73,7 +94,7 @@ public class Worker{
 		completed.set(0);
 		running = true;
 
-		for(File img : files){
+		for(Path img : files){
 			executor.submit(()->{
 				while(!running){
 					try{
@@ -98,7 +119,7 @@ public class Worker{
 					System.gc();
 					Dialog.showMessageDialog(
 						"The program ran out of memory while scaling: "
-						+ img.getName()
+						+ img.getFileName().toString()
 						+ "\nIf this happens more often try lowering the 'Thread' value."
 						+ "\n\nAlternatively you can try running the program with more RAM."
 						+ "\n\nOn the off chance that you're running 32bit Java on a 64bit system"
@@ -135,7 +156,7 @@ public class Worker{
 		 * @param file The file that caused the error.
 		 * @param e The exception.
 		 */
-		public abstract void error(File file, Exception e);
+		public abstract void error(Path file, Exception e);
 		
 		/**
 		 * Called when all files have finished processing.
@@ -149,17 +170,18 @@ public class Worker{
 	 * @param file The image to rescale.
 	 * @throws IOException When an IOException occurs.
 	 */
-	private static final void scale(File file) throws IOException{
-		String name = file.getAbsolutePath().replace(Main.inputDir.getAbsolutePath(), "");
+	private static final void scale(Path file) throws IOException{
+		Path relative = Main.inputDir.relativize(file);
+		String name = relative.getFileName().toString();
 		int dot = name.lastIndexOf('.');
-		String ext = name.substring(dot + 1);
-		name = Main.renameRegex.matcher(name.substring(name.startsWith(File.separator) ? 1 : 0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
-		File out = new File(Main.outputDir, name);
+		String ext = name.substring(dot + 1).toLowerCase(Locale.ROOT);
+		name = Main.renameRegex.matcher(name.substring(0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
+		Path out = Main.outputDir.resolve(relative.getParent()).resolve(name);
 		
 		if(Double.compare(Main.scale, 1.0D) == 0){
 			out.getParentFile().mkdirs();
-			Files.copy(file.toPath(), out.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		}else if(Main.overwrite || !out.exists()){
+			Files.copy(file, out, StandardCopyOption.REPLACE_EXISTING);
+		}else if(Main.overwrite || Files.notExists(out)){
 			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
 			if(!readers.hasNext()){
 				throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
@@ -191,36 +213,5 @@ public class Worker{
 				}
 			}
 		}
-	}
-
-	/**
-	 * Gets a list of all the files in the
-	 * input folder that math the filter regex
-	 * @param dir The directory to search
-	 * @return The list of matching image files
-	 */
-	private static final List<File> getImages(File dir){
-		List<File> list = new ArrayList<File>();
-		for(File file : dir.listFiles()){
-			if(file.isDirectory() && Main.subdirectories){
-				list.addAll(getImages(file));
-			}else{
-				String name = file.getName();
-				int dot = name.lastIndexOf('.');
-				if(dot != -1){
-					String ext = name.substring(dot + 1);
-					name = name.substring(0, dot);
-					if(Main.regex.matcher(name).matches()){
-						for(String e : Main.extensions){
-							if(e.equalsIgnoreCase(ext)){
-								list.add(file);
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		return list;
 	}
 }
