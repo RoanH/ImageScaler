@@ -83,7 +83,7 @@ public class Main{
 		samefolder.addActionListener((e)->{
 			if(samefolder.isSelected()){
 				fout.setEnabled(false);
-				fout.setText(fin.getText());
+				fout.setText(Files.isRegularFile(fin.getFile()) ? "Not applicable, input is a file" : fin.getText());
 			}else{
 				fout.setEnabled(true);
 			}
