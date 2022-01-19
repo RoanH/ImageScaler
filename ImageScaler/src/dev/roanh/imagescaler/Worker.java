@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Worker{
 	/**
 	 * List of files to scale
 	 */
-	private List<Path> files;
+	private List<Path> files = new ArrayList<Path>();
 	/**
 	 * Regex that is used on all file names to optionally modify them
 	 */
@@ -214,7 +215,7 @@ public class Worker{
 		int dot = name.lastIndexOf('.');
 		String ext = name.substring(dot + 1).toLowerCase(Locale.ROOT);
 		name = renameRegex.matcher(name.substring(0, dot)).replaceAll(renameReplace) + name.substring(dot);
-		Path out = outputDir.resolve(relative.getParent()).resolve(name);
+		Path out = relative.getParent() == null ? outputDir.resolve(name) : outputDir.resolve(relative.getParent()).resolve(name);
 		
 		if(Double.compare(scale, 1.0D) == 0){
 			Files.createDirectories(out.getParent());
@@ -226,10 +227,14 @@ public class Worker{
 			}
 			
 			ImageReader reader = readers.next();
-			try(ImageInputStream imageStream = ImageIO.createImageInputStream(file)){
+			try(ImageInputStream imageStream = ImageIO.createImageInputStream(Files.newInputStream(file))){
 				reader.setInput(imageStream);
 				BufferedImage img = reader.read(0);
-				BufferedImage output = new ResampleOp((int)Math.round(img.getWidth() * scale), (int)Math.round(img.getHeight() * scale), mode.mode).filter(img, null);
+				BufferedImage output = new ResampleOp(
+					Math.max(1, (int)Math.round(img.getWidth() * scale)),
+					Math.max(1, (int)Math.round(img.getHeight() * scale)),
+					mode.mode
+				).filter(img, null);
 				
 				Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
 				if(!writers.hasNext()){
@@ -239,7 +244,7 @@ public class Worker{
 				Files.createDirectories(out.getParent());
 				Files.createFile(out);
 				ImageWriter writer = writers.next();
-				try(ImageOutputStream stream = ImageIO.createImageOutputStream(Files.newInputStream(out))){
+				try(ImageOutputStream stream = ImageIO.createImageOutputStream(Files.newOutputStream(out))){
 					writer.setOutput(stream);
 					writer.write(output);
 					

@@ -107,7 +107,7 @@ public class Main{
 		mode.setSelectedItem(ScalingMode.LANCZOS);
 		JPanel labels = new JPanel(new GridLayout(2, 1, 0, 5));
 		JPanel sels = new JPanel(new GridLayout(2, 1, 0, 5));
-		JSpinner scalef = new JSpinner(new SpinnerNumberModel(0.0D, 0, Short.MAX_VALUE, 0.01));
+		JSpinner scalef = new JSpinner(new SpinnerNumberModel(0.5D, 0.0D, Short.MAX_VALUE, 0.01D));
 		checkboxes.add(over);
 		checkboxes.add(subdir);
 		options.add(checkboxes, BorderLayout.PAGE_START);
