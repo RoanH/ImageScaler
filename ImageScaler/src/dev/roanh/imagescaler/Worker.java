@@ -65,32 +65,30 @@ public class Worker{
 	/**
 	 * The factor to scale the input images by
 	 */
-	protected double scale;
+	private double scale;
 	/**
 	 * Whether or not to overwrite existing files
 	 */
-	protected boolean overwrite;
+	private boolean overwrite;
 	/**
 	 * The scaling algorithm that is used
 	 */
-	protected ScalingMode mode;
+	private ScalingMode mode;
 
 	/**
-	 * Reads the list of images to rescale
-	 * from the selected input directory
-	 * and returns the number of images
-	 * that are going to be rescaled
-	 * @param input 
-	 * @param output 
-	 * @param subdirs Whether or not to parse subdirectories.
-	 * @param matchRegex Regex used to match the files to convert.
-	 * @param renameRegex 
-	 * @param replacement 
-	 * @param extensions 
-	 * @param overwrite 
-	 * @param mode 
-	 * @param scale 
-	 * @throws IOException 
+	 * Constructs a new rescaling working with the given configuration options and workload.
+	 * @param input The input directory to read from, could be a single file.
+	 * @param output The output directory to write to, should be <code>null</code>
+	 *        when the input is a single file.
+	 * @param subdirs Whether or not to parse subdirectories of the input directory.
+	 * @param matchRegex Regex used to match the name of the files to convert.
+	 * @param renameRegex Regex used to match the part of the file name to replace.
+	 * @param replacement The replacement for the part matched by the rename regex.
+	 * @param extensions Array of file extensions to parse.
+	 * @param overwrite Whether or not to overwrite existing files (if applicable).
+	 * @param mode The rescaling algorithm to use.
+	 * @param scale The scaling factor to rescale the images by.
+	 * @throws IOException When an IOException occurs.
 	 */
 	public Worker(Path input, Path output, boolean subdirs, Pattern matchRegex, Pattern renameRegex, String replacement, String[] extensions, boolean overwrite, ScalingMode mode, double scale) throws IOException{
 		inputDir = input;
@@ -129,6 +127,10 @@ public class Worker{
 		}
 	}
 	
+	/**
+	 * Gets the number of files scheduled to be rescaled.
+	 * @return The number of files to be rescaled.
+	 */
 	public int getWorkloadSize(){
 		return files.size();
 	}
@@ -153,7 +155,7 @@ public class Worker{
 	 * Starts the threads and rescales all the images.
 	 * @param threads Number of rescale threads to use.
 	 * @param listener The ProgressListener to notify of
-	 *        any progress that's made.
+	 *        any progress that is made.
 	 */
 	public final void start(int threads, ProgressListener listener){
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
