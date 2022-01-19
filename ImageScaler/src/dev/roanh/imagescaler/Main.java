@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -45,51 +44,6 @@ import dev.roanh.util.Util;
  * @author Roan
  */
 public class Main{
-	/**
-	 * The directory to write rescaled images to
-	 */
-	protected static Path outputDir;
-	/**
-	 * The directory to search for images to rescale
-	 */
-	protected static Path inputDir;
-	/**
-	 * The factor to scale the input images by
-	 */
-	protected static double scale = 0.5D;
-	/**
-	 * Whether or not to overwrite existing files
-	 */
-	protected static boolean overwrite = false;
-	/**
-	 * The scaling algorithm that is used
-	 */
-	protected static ScalingMode mode = ScalingMode.LANCZOS;
-	/**
-	 * Number of rescale threads to use
-	 */
-	protected static int threads = Math.min(4, Runtime.getRuntime().availableProcessors());
-	/**
-	 * Regex used to match the files to convert
-	 */
-	protected static Pattern regex = Pattern.compile(".+@2x");
-	/**
-	 * Regex that is used on all file names to optionally modify them
-	 */
-	protected static Pattern renameRegex = Pattern.compile("@2x");
-	/**
-	 * List of file extensions that is used to match the files to convert.
-	 */
-	protected static String[] extensions = new String[]{"png", "jpg", "jpeg"};
-	/**
-	 * Replacement string for file name parts
-	 * matched by the {@link #renameRegex} regex.
-	 */
-	protected static String renameReplace = "";
-	/**
-	 * Whether or not to parse subdirectories.
-	 */
-	protected static boolean subdirectories = true;
 
 	/**
 	 * Starts the program and shows the GUI
@@ -143,13 +97,13 @@ public class Main{
 		JPanel options = new JPanel(new BorderLayout());
 		JPanel checkboxes = new JPanel(new GridLayout(2, 1, 0, 0));
 		options.setBorder(BorderFactory.createTitledBorder("Options"));
-		JCheckBox over = new JCheckBox("Overwrite existing files", overwrite);
-		JCheckBox subdir = new JCheckBox("Parse subdirectories", subdirectories);
+		JCheckBox over = new JCheckBox("Overwrite existing files", false);
+		JCheckBox subdir = new JCheckBox("Parse subdirectories", true);
 		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
-		mode.setSelectedItem(Main.mode);
+		mode.setSelectedItem(ScalingMode.LANCZOS);
 		JPanel labels = new JPanel(new GridLayout(2, 1, 0, 5));
 		JPanel sels = new JPanel(new GridLayout(2, 1, 0, 5));
-		JSpinner scalef = new JSpinner(new SpinnerNumberModel(Main.scale, 0, Short.MAX_VALUE, 0.01));
+		JSpinner scalef = new JSpinner(new SpinnerNumberModel(0.0D, 0, Short.MAX_VALUE, 0.01));
 		checkboxes.add(over);
 		checkboxes.add(subdir);
 		options.add(checkboxes, BorderLayout.PAGE_START);
@@ -159,36 +113,20 @@ public class Main{
 		sels.add(scalef);
 		options.add(labels, BorderLayout.LINE_START);
 		options.add(sels, BorderLayout.CENTER);
-		over.addActionListener((e)->{
-			overwrite = over.isSelected();
-		});
-		subdir.addActionListener((e)->{
-			subdirectories = subdir.isSelected();
-		});
-		mode.addActionListener((e)->{
-			Main.mode = (ScalingMode)mode.getSelectedItem();
-		});
-		scalef.addChangeListener((e)->{
-			Main.scale = (double)scalef.getValue();
-		});
 
 		JPanel advoptions = new JPanel(new BorderLayout());
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
 		JPanel labelsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel selsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel helpadv = new JPanel(new GridLayout(4, 1, 0, 5));
-		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Runtime.getRuntime().availableProcessors(), 1));
-		JTextField regex = new JTextField(Main.regex.pattern());
+		JSpinner threads = new JSpinner(new SpinnerNumberModel(Math.min(4, Runtime.getRuntime().availableProcessors()), 1, Runtime.getRuntime().availableProcessors(), 1));
+		JTextField regex = new JTextField(".+@2x");
 		regex.setToolTipText("Matches the files that will be rescaled (note .+ just matches any number of characters).");
-		StringJoiner joiner = new StringJoiner(", ");
-		for(String ext : extensions){
-			joiner.add(ext);
-		}
-		JTextField extensionField = new JTextField(joiner.toString());
+		JTextField extensionField = new JTextField("png, jpg, jpeg");
 		extensionField.setToolTipText("File name extensions to match, case insensitive.");
-		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
+		JTextField renameMatch = new JTextField("@2x");
 		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
-		JTextField renameReplace = new JTextField(Main.renameReplace);
+		JTextField renameReplace = new JTextField("");
 		renameReplace.setToolTipText("The string to use as a replacement for the regions found by the regex.");
 		JPanel rename = new JPanel(new GridLayout(1, 3, 4, 0));
 		rename.add(renameMatch);
@@ -318,31 +256,48 @@ public class Main{
 		enableFun.accept(true);
 		
 		start.addActionListener((e)->{
-			inputDir = fin.getFile();
+			Path inputDir = fin.getFile();
 			if(Files.notExists(inputDir)){
 				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
-				outputDir = Files.isDirectory(inputDir) ? fout.getFile() : null;
+				Path outputDir = Files.isDirectory(inputDir) ? fout.getFile() : null;
+				
+				Pattern matchRegex = null;
 				try{
-					Main.regex = Pattern.compile(regex.getText());
+					matchRegex = Pattern.compile(regex.getText());
 				}catch(PatternSyntaxException e1){
 					Dialog.showErrorDialog("Invalid file name regex: " + e1.getMessage());
 					return;
 				}
+				
+				Pattern renameRegex = null;
 				try{
-					Main.renameRegex = Pattern.compile(renameMatch.getText());
+					renameRegex = Pattern.compile(renameMatch.getText());
 				}catch(PatternSyntaxException e1){
 					Dialog.showErrorDialog("Invalid file rename regex: " + e1.getMessage());
 					return;
 				}
-				Main.renameReplace = renameReplace.getText();
-				extensions = extensionField.getText().split(",");
+				
+				String replacementText = renameReplace.getText();
+				String[] extensions = extensionField.getText().split(",");
 				for(int i = 0; i < extensions.length; i++){
 					extensions[i] = extensions[i].trim();
 				}
 
 				try{
-					final int total = Worker.prepare(inputDir, outputDir);
+					final int total = Worker.prepare(
+						inputDir,
+						outputDir,
+						subdir.isSelected(),
+						matchRegex,
+						renameRegex,
+						replacementText,
+						extensions,
+						over.isSelected(),
+						(ScalingMode)mode.getSelectedItem(),
+						(double)scalef.getValue()
+					);
+					
 					if(total == 0){
 						ptext.setText("No files to rescale");
 						bar.setMaximum(1);
@@ -350,11 +305,12 @@ public class Main{
 						return;
 					}
 					bar.setMaximum(total);
+					bar.setValue(0);
 
 					enableFun.accept(false);
 
 					List<String> exceptions = new ArrayList<String>(0);
-					Worker.start(new ProgressListener(){
+					Worker.start((int)threads.getValue(), new ProgressListener(){
 						@Override
 						public void progress(int completed){
 							bar.setValue(completed);

@@ -3,7 +3,6 @@ package dev.roanh.imagescaler;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.nio.file.Path;
 
 import javax.swing.JButton;

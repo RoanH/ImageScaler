@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -38,31 +39,83 @@ public class Worker{
 	 */
 	protected static volatile boolean running = false;
 	/**
+	 * The directory to write rescaled images to
+	 */
+	protected static Path outputDir;
+	/**
+	 * The directory to search for images to rescale
+	 */
+	protected static Path inputDir;
+	/**
 	 * List of files to scale
 	 */
 	private static List<Path> files;
+	/**
+	 * Regex that is used on all file names to optionally modify them
+	 */
+	private static Pattern renameRegex;
+	/**
+	 * List of file extensions that is used to match the files to convert.
+	 */
+	private static String[] extensions;
+	/**
+	 * Replacement string for file name parts
+	 * matched by the {@link #renameRegex} regex.
+	 */
+	private static String renameReplace;
+	/**
+	 * The factor to scale the input images by
+	 */
+	protected static double scale;
+	/**
+	 * Whether or not to overwrite existing files
+	 */
+	protected static boolean overwrite;
+	/**
+	 * The scaling algorithm that is used
+	 */
+	protected static ScalingMode mode;
 
 	/**
 	 * Reads the list of images to rescale
 	 * from the selected input directory
 	 * and returns the number of images
 	 * that are going to be rescaled
+	 * @param input 
+	 * @param output 
+	 * @param subdirs Whether or not to parse subdirectories.
+	 * @param matchRegex Regex used to match the files to convert.
+	 * @param renameRegex 
+	 * @param replacement 
+	 * @param extensions 
+	 * @param overwrite 
+	 * @param mode 
+	 * @param scale 
 	 * @return The number of images that
 	 *         are going to be rescaled
 	 * @throws IOException 
 	 */
-	public static final int prepare(Path input, Path output) throws IOException{
+	public static final int prepare(Path input, Path output, boolean subdirs, Pattern matchRegex, Pattern renameRegex, String replacement, String[] extensions, boolean overwrite, ScalingMode mode, double scale) throws IOException{
+		inputDir = input;
+		outputDir = output;
+		Worker.renameRegex = renameRegex;
+		Worker.extensions = extensions;
+		renameReplace = replacement;
+		Worker.overwrite = overwrite;
+		Worker.mode = mode;
+		Worker.scale = scale;
+		
 		files.clear();
 		if(Files.isDirectory(input)){
-			Files.find(input, Main.subdirectories ? Integer.MAX_VALUE : 1, (path, attr)->{
+			Files.find(input, subdirs ? Integer.MAX_VALUE : 1, (path, attr)->{
 				if(attr.isRegularFile()){
 					String name = path.getFileName().toString();
 					int dot = name.lastIndexOf('.');
 					if(dot != -1){
 						String ext = name.substring(dot + 1);
 						name = name.substring(0, dot);
-						if(Main.regex.matcher(name).matches()){
-							for(String e : Main.extensions){
+						if(matchRegex.matcher(name).matches()){
+							for(String e : extensions){
 								if(e.equalsIgnoreCase(ext)){
 									return true;
 								}
@@ -74,21 +127,22 @@ public class Worker{
 			}).forEach(files::add);
 		}else if(Files.isRegularFile(input)){
 			files = Collections.singletonList(input);
-			Main.inputDir = Main.inputDir.getParent();
-			if(Main.outputDir == null){
-				Main.outputDir = Main.inputDir;
+			inputDir = input.getParent();
+			if(output == null){
+				outputDir = inputDir;
 			}
 		}
 		return files.size();
 	}
 
 	/**
-	 * Starts the threads and rescales all the images
+	 * Starts the threads and rescales all the images.
+	 * @param threads Number of rescale threads to use.
 	 * @param listener The ProgressListener to notify of
-	 *        any progress that's made
+	 *        any progress that's made.
 	 */
-	public static final void start(ProgressListener listener){
-		ExecutorService executor = Executors.newFixedThreadPool(Main.threads);
+	public static final void start(int threads, ProgressListener listener){
+		ExecutorService executor = Executors.newFixedThreadPool(threads);
 		completed.set(0);
 		running = true;
 
@@ -169,17 +223,17 @@ public class Worker{
 	 * @throws IOException When an IOException occurs.
 	 */
 	private static final void scale(Path file) throws IOException{
-		Path relative = Main.inputDir.relativize(file);
+		Path relative = inputDir.relativize(file);
 		String name = relative.getFileName().toString();
 		int dot = name.lastIndexOf('.');
 		String ext = name.substring(dot + 1).toLowerCase(Locale.ROOT);
-		name = Main.renameRegex.matcher(name.substring(0, dot)).replaceAll(Main.renameReplace) + name.substring(dot);
-		Path out = Main.outputDir.resolve(relative.getParent()).resolve(name);
+		name = renameRegex.matcher(name.substring(0, dot)).replaceAll(renameReplace) + name.substring(dot);
+		Path out = outputDir.resolve(relative.getParent()).resolve(name);
 		
-		if(Double.compare(Main.scale, 1.0D) == 0){
+		if(Double.compare(scale, 1.0D) == 0){
 			Files.createDirectories(out.getParent());
 			Files.copy(file, out, StandardCopyOption.REPLACE_EXISTING);
-		}else if(Main.overwrite || Files.notExists(out)){
+		}else if(overwrite || Files.notExists(out)){
 			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
 			if(!readers.hasNext()){
 				throw new IllegalArgumentException("Cannot read files with the " + ext + " extension.");
@@ -189,7 +243,7 @@ public class Worker{
 			try(ImageInputStream imageStream = ImageIO.createImageInputStream(file)){
 				reader.setInput(imageStream);
 				BufferedImage img = reader.read(0);
-				BufferedImage output = new ResampleOp((int)Math.round(img.getWidth() * Main.scale), (int)Math.round(img.getHeight() * Main.scale), Main.mode.mode).filter(img, null);
+				BufferedImage output = new ResampleOp((int)Math.round(img.getWidth() * scale), (int)Math.round(img.getHeight() * scale), mode.mode).filter(img, null);
 				
 				Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
 				if(!writers.hasNext()){
