@@ -1,4 +1,4 @@
-package me.roan.imagescaler;
+package dev.roanh.imagescaler;
 
 import com.twelvemonkeys.image.ResampleOp;
 

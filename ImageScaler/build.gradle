@@ -51,7 +51,7 @@ dependencies{
 }
 
 application{
-	mainClassName = 'me.roan.imagescaler.Main'
+	mainClassName = 'dev.roanh.imagescaler.Main'
 }
 
 launch4j{

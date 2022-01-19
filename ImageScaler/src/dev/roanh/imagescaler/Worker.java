@@ -1,4 +1,4 @@
-package me.roan.imagescaler;
+package dev.roanh.imagescaler;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

@@ -1,4 +1,4 @@
-package me.roan.imagescaler;
+package dev.roanh.imagescaler;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -30,7 +30,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
-import me.roan.imagescaler.Worker.ProgressListener;
+import dev.roanh.imagescaler.Worker.ProgressListener;
 import dev.roanh.util.ClickableLink;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.ExclamationMarkPath;
