@@ -1,7 +1,9 @@
-# Image Scaler ![](https://img.shields.io/github/release/RoanH/ImageScaler.svg) ![](https://img.shields.io/github/downloads/RoanH/ImageScaler/total.svg)
+# <img src="ImageScaler/src/icon.png" width="40"/> Image Scaler [![](https://img.shields.io/github/release/RoanH/ImageScaler.svg)](https://github.com/RoanH/ImageScaler/releases) [![](https://img.shields.io/github/downloads/RoanH/ImageScaler/total.svg)](#downloads)
 Simple but powerful batch image rescaler.
 
-# Forum post
+[Jump directly to downloads](#downloads)
+
+# Description
 So a little while ago a friend of mine came up with the idea to write a program that would automatically create SD images for already existing HD (@2x) skin images.
 And now that program is done :D.
 
@@ -16,8 +18,8 @@ And if you find any bugs or think of nice features feel free to report/request t
 
 ## Downloads
 _Requires Java 8 or higher_
-- [Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.4/ImageScaler-v2.4.exe)
-- [Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.4/ImageScaler-v2.4.jar)
+- [Windows executable](https://github.com/RoanH/ImageScaler/releases/download/v2.5/ImageScaler-v2.5.exe)
+- [Runnable Java Archive](https://github.com/RoanH/ImageScaler/releases/download/v2.5/ImageScaler-v2.5.jar)
 
 All releases: [releases](https://github.com/RoanH/ImageScaler/releases)    
 GitHub repository: [here](https://github.com/RoanH/ImageScaler)    
