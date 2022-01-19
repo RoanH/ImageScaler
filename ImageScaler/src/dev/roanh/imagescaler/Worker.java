@@ -239,7 +239,7 @@ public class Worker{
 						Math.max(1, (int)Math.round(img.getWidth() * scale)),
 						Math.max(1, (int)Math.round(img.getHeight() * scale)),
 						mode.mode
-						).filter(img, null);
+					).filter(img, null);
 
 					Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
 					if(!writers.hasNext()){
