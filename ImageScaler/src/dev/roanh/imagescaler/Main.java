@@ -257,7 +257,8 @@ public class Main{
 			helpExt.setEnabled(enabled);
 			helpRename.setEnabled(enabled);
 			helpThreads.setEnabled(enabled);
-			fout.setEnabled(!samefolder.isSelected());
+			fout.setEnabled(!samefolder.isSelected() && enabled);
+			extensionField.setEnabled(enabled);
 		};
 		enableFun.accept(true);
 		
