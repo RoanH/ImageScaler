@@ -291,7 +291,7 @@ public class Main{
 				}
 
 				try{
-					Worker worker = new Worker(
+					worker = new Worker(
 						inputDir,
 						outputDir,
 						subdir.isSelected(),
