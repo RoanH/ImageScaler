@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -138,7 +139,6 @@ public class Main{
 		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
 		output.add(samefolder, BorderLayout.PAGE_START);
 		output.add(fout, BorderLayout.CENTER);
-		fout.setEnabled(false);
 
 		JPanel options = new JPanel(new BorderLayout());
 		JPanel checkboxes = new JPanel(new GridLayout(2, 1, 0, 0));
@@ -284,7 +284,7 @@ public class Main{
 		JButton start = new JButton("Start");
 		controls.add(start);
 		controls.add(pause);
-		pause.setEnabled(false);
+		
 		pause.addActionListener((e)->{
 			if(Worker.running){
 				Worker.running = false;
@@ -294,6 +294,29 @@ public class Main{
 				pause.setText("Pause");
 			}
 		});
+		
+		Consumer<Boolean> enableFun = enabled->{
+			pause.setEnabled(!enabled);
+			renameReplace.setEnabled(enabled);
+			renameMatch.setEnabled(enabled);
+			fout.setEnabled(enabled);
+			fin.setEnabled(enabled);
+			over.setEnabled(enabled);
+			samefolder.setEnabled(enabled);
+			subdir.setEnabled(enabled);
+			mode.setEnabled(enabled);
+			scalef.setEnabled(enabled);
+			threads.setEnabled(enabled);
+			start.setEnabled(enabled);
+			regex.setEnabled(enabled);
+			helpRegex.setEnabled(enabled);
+			helpExt.setEnabled(enabled);
+			helpRename.setEnabled(enabled);
+			helpThreads.setEnabled(enabled);
+			fout.setEnabled(!samefolder.isSelected());
+		};
+		enableFun.accept(true);
+		
 		start.addActionListener((e)->{
 			inputDir = fin.getFile();
 			if(Files.notExists(inputDir)){
@@ -317,77 +340,49 @@ public class Main{
 				for(int i = 0; i < extensions.length; i++){
 					extensions[i] = extensions[i].trim();
 				}
-				final int total = Worker.prepare(inputDir, outputDir);
-				if(total == 0){
-					ptext.setText("No files to rescale");
-					bar.setMaximum(1);
-					bar.setValue(1);
-					return;
+
+				try{
+					final int total = Worker.prepare(inputDir, outputDir);
+					if(total == 0){
+						ptext.setText("No files to rescale");
+						bar.setMaximum(1);
+						bar.setValue(1);
+						return;
+					}
+					bar.setMaximum(total);
+
+					enableFun.accept(false);
+
+					List<String> exceptions = new ArrayList<String>(0);
+					Worker.start(new ProgressListener(){
+						@Override
+						public void progress(int completed){
+							bar.setValue(completed);
+							ptext.setText(completed + "/" + total);
+							progress.repaint();
+						}
+
+						@Override
+						public void error(Path file, Exception e){
+							exceptions.add(file.toAbsolutePath().toString() + ": " + e.getMessage());
+						}
+
+						@Override
+						public void done(){
+							if(!exceptions.isEmpty()){
+								JPanel msg = new JPanel(new BorderLayout());
+								msg.add(new JLabel("Scaling finished with " + (exceptions.size() == 1 ? "1 error" : (exceptions.size() + " errors")) + ". These files were consequently skipped:"), BorderLayout.PAGE_START);
+								msg.add(new JScrollPane(new JList<String>(exceptions.toArray(new String[0]))), BorderLayout.CENTER);
+								Dialog.showMessageDialog(msg);
+							}
+
+							enableFun.accept(true);
+						}
+					});
+				}catch(IOException e1){
+					e1.printStackTrace();
+					Dialog.showErrorDialog("An internal error occurred:\nCause: " + e1.getMessage());
 				}
-				bar.setMaximum(total);
-				
-				renameReplace.setEnabled(false);
-				renameMatch.setEnabled(false);
-				fout.setEnabled(false);
-				fin.setEnabled(false);
-				over.setEnabled(false);
-				samefolder.setEnabled(false);
-				subdir.setEnabled(false);
-				mode.setEnabled(false);
-				scalef.setEnabled(false);
-				threads.setEnabled(false);
-				start.setEnabled(false);
-				regex.setEnabled(false);
-				pause.setEnabled(true);
-				helpRegex.setEnabled(false);
-				helpExt.setEnabled(false);
-				helpRename.setEnabled(false);
-				helpThreads.setEnabled(false);
-				
-				List<String> exceptions = new ArrayList<String>(0);
-				Worker.start(new ProgressListener(){
-					@Override
-					public void progress(int completed){
-						bar.setValue(completed);
-						ptext.setText(completed + "/" + total);
-						progress.repaint();
-					}
-
-					@Override
-					public void error(Path file, Exception e){
-						exceptions.add(file.toAbsolutePath().toString() + ": " + e.getMessage());
-					}
-
-					@Override
-					public void done(){
-						if(!exceptions.isEmpty()){
-							JPanel msg = new JPanel(new BorderLayout());
-							msg.add(new JLabel("Scaling finished with " + (exceptions.size() == 1 ? "1 error" : (exceptions.size() + " errors")) + ". These files were consequently skipped:"), BorderLayout.PAGE_START);
-							msg.add(new JScrollPane(new JList<String>(exceptions.toArray(new String[0]))), BorderLayout.CENTER);
-							Dialog.showMessageDialog(msg);
-						}
-						
-						renameReplace.setEnabled(true);
-						renameMatch.setEnabled(true);
-						fin.setEnabled(true);
-						samefolder.setEnabled(true);
-						if(!samefolder.isSelected()){
-							fout.setEnabled(true);
-						}
-						over.setEnabled(true);
-						mode.setEnabled(true);
-						scalef.setEnabled(true);
-						threads.setEnabled(true);
-						subdir.setEnabled(true);
-						start.setEnabled(true);
-						regex.setEnabled(true);
-						pause.setEnabled(false);
-						helpRegex.setEnabled(true);
-						helpExt.setEnabled(true);
-						helpRename.setEnabled(true);
-						helpThreads.setEnabled(true);
-					}
-				});
 			}
 		});
 

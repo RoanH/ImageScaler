@@ -1,12 +1,10 @@
 package dev.roanh.imagescaler;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -179,7 +177,7 @@ public class Worker{
 		Path out = Main.outputDir.resolve(relative.getParent()).resolve(name);
 		
 		if(Double.compare(Main.scale, 1.0D) == 0){
-			out.getParentFile().mkdirs();
+			Files.createDirectories(out.getParent());
 			Files.copy(file, out, StandardCopyOption.REPLACE_EXISTING);
 		}else if(Main.overwrite || Files.notExists(out)){
 			Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(ext);
@@ -198,10 +196,10 @@ public class Worker{
 					throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
 				}
 				
-				out.getParentFile().mkdirs();
-				out.createNewFile();
+				Files.createDirectories(out.getParent());
+				Files.createFile(out);
 				ImageWriter writer = writers.next();
-				try(ImageOutputStream stream = ImageIO.createImageOutputStream(out)){
+				try(ImageOutputStream stream = ImageIO.createImageOutputStream(Files.newInputStream(out))){
 					writer.setOutput(stream);
 					writer.write(output);
 					
