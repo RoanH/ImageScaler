@@ -2,6 +2,8 @@ package dev.roanh.imagescaler;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -227,32 +229,36 @@ public class Worker{
 			}
 			
 			ImageReader reader = readers.next();
-			try(ImageInputStream imageStream = ImageIO.createImageInputStream(Files.newInputStream(file))){
-				reader.setInput(imageStream);
-				BufferedImage img = reader.read(0);
-				BufferedImage output = new ResampleOp(
-					Math.max(1, (int)Math.round(img.getWidth() * scale)),
-					Math.max(1, (int)Math.round(img.getHeight() * scale)),
-					mode.mode
-				).filter(img, null);
-				
-				Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
-				if(!writers.hasNext()){
-					throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
-				}
-				
-				Files.createDirectories(out.getParent());
-				Files.createFile(out);
-				ImageWriter writer = writers.next();
-				try(ImageOutputStream stream = ImageIO.createImageOutputStream(Files.newOutputStream(out))){
-					writer.setOutput(stream);
-					writer.write(output);
-					
-					writer.dispose();
-					stream.flush();
-					reader.dispose();
-					img.flush();
-					output.flush();
+			try(InputStream inStream = Files.newInputStream(file)){
+				try(ImageInputStream imageStream = ImageIO.createImageInputStream(inStream)){
+					reader.setInput(imageStream);
+					BufferedImage img = reader.read(0);
+					BufferedImage output = new ResampleOp(
+						Math.max(1, (int)Math.round(img.getWidth() * scale)),
+						Math.max(1, (int)Math.round(img.getHeight() * scale)),
+						mode.mode
+						).filter(img, null);
+
+					Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix(ext);
+					if(!writers.hasNext()){
+						throw new IllegalArgumentException("Cannot write files with the " + ext + " extension.");
+					}
+
+					Files.createDirectories(out.getParent());
+					ImageWriter writer = writers.next();
+					try(OutputStream outStream = Files.newOutputStream(out)){
+						try(ImageOutputStream stream = ImageIO.createImageOutputStream(outStream)){
+							writer.setOutput(stream);
+							writer.write(output);
+
+							writer.dispose();
+							stream.flush();
+							reader.dispose();
+							img.flush();
+							output.flush();
+						}
+						outStream.flush();
+					}
 				}
 			}
 		}
