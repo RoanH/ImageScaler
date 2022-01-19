@@ -5,12 +5,12 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -41,55 +41,13 @@ import dev.roanh.util.Util;
  * Relatively simple program that rescales images
  * in a folder that match a regex
  * and writes them to some other folder.
- * 
  * @author Roan
  */
 public class Main{
 	/**
-	 * The directory to write rescaled images to
+	 * Active worker currently scaling images.
 	 */
-	protected static File outputDir;
-	/**
-	 * The directory to search for images to rescale
-	 */
-	protected static File inputDir;
-	/**
-	 * The factor to scale the input images by
-	 */
-	protected static double scale = 0.5D;
-	/**
-	 * Whether or not to overwrite existing files
-	 */
-	protected static boolean overwrite = false;
-	/**
-	 * The scaling algorithm that is used
-	 */
-	protected static ScalingMode mode = ScalingMode.LANCZOS;
-	/**
-	 * Number of rescale threads to use
-	 */
-	protected static int threads = Math.min(4, Runtime.getRuntime().availableProcessors());
-	/**
-	 * Regex used to match the files to convert
-	 */
-	protected static Pattern regex = Pattern.compile(".+@2x");
-	/**
-	 * Regex that is used on all file names to optionally modify them
-	 */
-	protected static Pattern renameRegex = Pattern.compile("@2x");
-	/**
-	 * List of file extensions that is used to match the files to convert.
-	 */
-	protected static String[] extensions = new String[]{"png", "jpg", "jpeg"};
-	/**
-	 * Replacement string for file name parts
-	 * matched by the {@link #renameRegex} regex.
-	 */
-	protected static String renameReplace = "";
-	/**
-	 * Whether or not to parse subdirectories.
-	 */
-	protected static boolean subdirectories = true;
+	private static Worker worker = null;
 
 	/**
 	 * Starts the program and shows the GUI
@@ -125,7 +83,7 @@ public class Main{
 		samefolder.addActionListener((e)->{
 			if(samefolder.isSelected()){
 				fout.setEnabled(false);
-				fout.setText(fin.getText());
+				fout.setText(Files.isRegularFile(fin.getFile()) ? "Not applicable, input is a file" : fin.getText());
 			}else{
 				fout.setEnabled(true);
 			}
@@ -139,18 +97,17 @@ public class Main{
 		output.setBorder(BorderFactory.createTitledBorder("Output Folder"));
 		output.add(samefolder, BorderLayout.PAGE_START);
 		output.add(fout, BorderLayout.CENTER);
-		fout.setEnabled(false);
 
 		JPanel options = new JPanel(new BorderLayout());
 		JPanel checkboxes = new JPanel(new GridLayout(2, 1, 0, 0));
 		options.setBorder(BorderFactory.createTitledBorder("Options"));
-		JCheckBox over = new JCheckBox("Overwrite existing files", overwrite);
-		JCheckBox subdir = new JCheckBox("Parse subdirectories", subdirectories);
+		JCheckBox over = new JCheckBox("Overwrite existing files", false);
+		JCheckBox subdir = new JCheckBox("Parse subdirectories", true);
 		JComboBox<ScalingMode> mode = new JComboBox<ScalingMode>(ScalingMode.values());
-		mode.setSelectedItem(Main.mode);
+		mode.setSelectedItem(ScalingMode.LANCZOS);
 		JPanel labels = new JPanel(new GridLayout(2, 1, 0, 5));
 		JPanel sels = new JPanel(new GridLayout(2, 1, 0, 5));
-		JSpinner scalef = new JSpinner(new SpinnerNumberModel(Main.scale, 0, Short.MAX_VALUE, 0.01));
+		JSpinner scalef = new JSpinner(new SpinnerNumberModel(0.5D, 0.0D, Short.MAX_VALUE, 0.01D));
 		checkboxes.add(over);
 		checkboxes.add(subdir);
 		options.add(checkboxes, BorderLayout.PAGE_START);
@@ -160,36 +117,20 @@ public class Main{
 		sels.add(scalef);
 		options.add(labels, BorderLayout.LINE_START);
 		options.add(sels, BorderLayout.CENTER);
-		over.addActionListener((e)->{
-			overwrite = over.isSelected();
-		});
-		subdir.addActionListener((e)->{
-			subdirectories = subdir.isSelected();
-		});
-		mode.addActionListener((e)->{
-			Main.mode = (ScalingMode)mode.getSelectedItem();
-		});
-		scalef.addChangeListener((e)->{
-			Main.scale = (double)scalef.getValue();
-		});
 
 		JPanel advoptions = new JPanel(new BorderLayout());
 		advoptions.setBorder(BorderFactory.createTitledBorder("Advanced Options"));
 		JPanel labelsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel selsadv = new JPanel(new GridLayout(4, 1, 0, 5));
 		JPanel helpadv = new JPanel(new GridLayout(4, 1, 0, 5));
-		JSpinner threads = new JSpinner(new SpinnerNumberModel(Main.threads, 1, Runtime.getRuntime().availableProcessors(), 1));
-		JTextField regex = new JTextField(Main.regex.pattern());
+		JSpinner threads = new JSpinner(new SpinnerNumberModel(Math.min(4, Runtime.getRuntime().availableProcessors()), 1, Runtime.getRuntime().availableProcessors(), 1));
+		JTextField regex = new JTextField(".+@2x");
 		regex.setToolTipText("Matches the files that will be rescaled (note .+ just matches any number of characters).");
-		StringJoiner joiner = new StringJoiner(", ");
-		for(String ext : extensions){
-			joiner.add(ext);
-		}
-		JTextField extensionField = new JTextField(joiner.toString());
+		JTextField extensionField = new JTextField("png, jpg, jpeg");
 		extensionField.setToolTipText("File name extensions to match, case insensitive.");
-		JTextField renameMatch = new JTextField(Main.renameRegex.pattern());
+		JTextField renameMatch = new JTextField("@2x");
 		renameMatch.setToolTipText("Matches a part of the file name that can be changed.");
-		JTextField renameReplace = new JTextField(Main.renameReplace);
+		JTextField renameReplace = new JTextField("");
 		renameReplace.setToolTipText("The string to use as a replacement for the regions found by the regex.");
 		JPanel rename = new JPanel(new GridLayout(1, 3, 4, 0));
 		rename.add(renameMatch);
@@ -285,110 +226,126 @@ public class Main{
 		JButton start = new JButton("Start");
 		controls.add(start);
 		controls.add(pause);
-		pause.setEnabled(false);
+		
 		pause.addActionListener((e)->{
-			if(Worker.running){
-				Worker.running = false;
-				pause.setText("Resume");
-			}else{
-				Worker.running = true;
-				pause.setText("Pause");
+			if(worker != null){
+				if(worker.isRunning()){
+					worker.setRunning(false);
+					pause.setText("Resume");
+				}else{
+					worker.setRunning(true);
+					pause.setText("Pause");
+				}
 			}
 		});
+		
+		Consumer<Boolean> enableFun = enabled->{
+			pause.setEnabled(!enabled);
+			renameReplace.setEnabled(enabled);
+			renameMatch.setEnabled(enabled);
+			fout.setEnabled(enabled);
+			fin.setEnabled(enabled);
+			over.setEnabled(enabled);
+			samefolder.setEnabled(enabled);
+			subdir.setEnabled(enabled);
+			mode.setEnabled(enabled);
+			scalef.setEnabled(enabled);
+			threads.setEnabled(enabled);
+			start.setEnabled(enabled);
+			regex.setEnabled(enabled);
+			helpRegex.setEnabled(enabled);
+			helpExt.setEnabled(enabled);
+			helpRename.setEnabled(enabled);
+			helpThreads.setEnabled(enabled);
+			fout.setEnabled(!samefolder.isSelected() && enabled);
+			extensionField.setEnabled(enabled);
+		};
+		enableFun.accept(true);
+		
 		start.addActionListener((e)->{
-			inputDir = fin.getFile();
-			if(!inputDir.exists()){
+			Path inputDir = fin.getFile();
+			if(Files.notExists(inputDir)){
 				Dialog.showErrorDialog("Input directory does not exist!");
 			}else{
-				outputDir = inputDir.isDirectory() ? new File(fout.getText()) : null;
+				Path outputDir = Files.isDirectory(inputDir) ? fout.getFile() : null;
+				
+				Pattern matchRegex = null;
 				try{
-					Main.regex = Pattern.compile(regex.getText());
+					matchRegex = Pattern.compile(regex.getText());
 				}catch(PatternSyntaxException e1){
 					Dialog.showErrorDialog("Invalid file name regex: " + e1.getMessage());
 					return;
 				}
+				
+				Pattern renameRegex = null;
 				try{
-					Main.renameRegex = Pattern.compile(renameMatch.getText());
+					renameRegex = Pattern.compile(renameMatch.getText());
 				}catch(PatternSyntaxException e1){
 					Dialog.showErrorDialog("Invalid file rename regex: " + e1.getMessage());
 					return;
 				}
-				Main.renameReplace = renameReplace.getText();
-				extensions = extensionField.getText().split(",");
+				
+				String replacementText = renameReplace.getText();
+				String[] extensions = extensionField.getText().split(",");
 				for(int i = 0; i < extensions.length; i++){
 					extensions[i] = extensions[i].trim();
 				}
-				final int total = Worker.prepare();
-				if(total == 0){
-					ptext.setText("No files to rescale");
-					bar.setMaximum(1);
-					bar.setValue(1);
-					return;
+
+				try{
+					worker = new Worker(
+						inputDir,
+						outputDir,
+						subdir.isSelected(),
+						matchRegex,
+						renameRegex,
+						replacementText,
+						extensions,
+						over.isSelected(),
+						(ScalingMode)mode.getSelectedItem(),
+						(double)scalef.getValue()
+					);
+					
+					if(worker.getWorkloadSize() == 0){
+						ptext.setText("No files to rescale");
+						bar.setMaximum(1);
+						bar.setValue(1);
+						return;
+					}
+					bar.setMaximum(worker.getWorkloadSize());
+					bar.setValue(0);
+
+					enableFun.accept(false);
+
+					List<String> exceptions = new ArrayList<String>(0);
+					worker.start((int)threads.getValue(), new ProgressListener(){
+						@Override
+						public void progress(int completed){
+							bar.setValue(completed);
+							ptext.setText(completed + "/" + worker.getWorkloadSize());
+							progress.repaint();
+						}
+
+						@Override
+						public void error(Path file, Exception e){
+							exceptions.add(file.toAbsolutePath().toString() + ": " + e.getMessage());
+						}
+
+						@Override
+						public void done(){
+							if(!exceptions.isEmpty()){
+								JPanel msg = new JPanel(new BorderLayout());
+								msg.add(new JLabel("Scaling finished with " + (exceptions.size() == 1 ? "1 error" : (exceptions.size() + " errors")) + ". These files were consequently skipped:"), BorderLayout.PAGE_START);
+								msg.add(new JScrollPane(new JList<String>(exceptions.toArray(new String[0]))), BorderLayout.CENTER);
+								Dialog.showMessageDialog(msg);
+							}
+
+							enableFun.accept(true);
+						}
+					});
+				}catch(IOException e1){
+					e1.printStackTrace();
+					Dialog.showErrorDialog("An internal error occurred:\nCause: " + e1.getMessage());
 				}
-				bar.setMaximum(total);
-				
-				renameReplace.setEnabled(false);
-				renameMatch.setEnabled(false);
-				fout.setEnabled(false);
-				fin.setEnabled(false);
-				over.setEnabled(false);
-				samefolder.setEnabled(false);
-				subdir.setEnabled(false);
-				mode.setEnabled(false);
-				scalef.setEnabled(false);
-				threads.setEnabled(false);
-				start.setEnabled(false);
-				regex.setEnabled(false);
-				pause.setEnabled(true);
-				helpRegex.setEnabled(false);
-				helpExt.setEnabled(false);
-				helpRename.setEnabled(false);
-				helpThreads.setEnabled(false);
-				
-				List<String> exceptions = new ArrayList<String>(0);
-				Worker.start(new ProgressListener(){
-					@Override
-					public void progress(int completed){
-						bar.setValue(completed);
-						ptext.setText(completed + "/" + total);
-						progress.repaint();
-					}
-
-					@Override
-					public void error(File file, Exception e){
-						exceptions.add(file.getAbsolutePath() + ": " + e.getMessage());
-					}
-
-					@Override
-					public void done(){
-						if(!exceptions.isEmpty()){
-							JPanel msg = new JPanel(new BorderLayout());
-							msg.add(new JLabel("Scaling finished with " + (exceptions.size() == 1 ? "1 error" : (exceptions.size() + " errors")) + ". These files were consequently skipped:"), BorderLayout.PAGE_START);
-							msg.add(new JScrollPane(new JList<String>(exceptions.toArray(new String[0]))), BorderLayout.CENTER);
-							Dialog.showMessageDialog(msg);
-						}
-						
-						renameReplace.setEnabled(true);
-						renameMatch.setEnabled(true);
-						fin.setEnabled(true);
-						samefolder.setEnabled(true);
-						if(!samefolder.isSelected()){
-							fout.setEnabled(true);
-						}
-						over.setEnabled(true);
-						mode.setEnabled(true);
-						scalef.setEnabled(true);
-						threads.setEnabled(true);
-						subdir.setEnabled(true);
-						start.setEnabled(true);
-						regex.setEnabled(true);
-						pause.setEnabled(false);
-						helpRegex.setEnabled(true);
-						helpExt.setEnabled(true);
-						helpRename.setEnabled(true);
-						helpThreads.setEnabled(true);
-					}
-				});
 			}
 		});
 
