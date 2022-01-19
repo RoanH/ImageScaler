@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -116,9 +117,9 @@ public class Main{
 		
 		JCheckBox samefolder = new JCheckBox("Write to input folder", true);
 		FolderSelector fout = new FolderSelector();
-		FolderSelector fin = new FolderSelector(data->{
+		FolderSelector fin = new FolderSelector((data, path)->{
 			if(samefolder.isSelected()){
-				fout.setText(data.contains(".") ? "Not applicable, input is a file" : data);
+				fout.setText(Files.isRegularFile(path) ? "Not applicable, input is a file" : data);
 			}
 		});
 		samefolder.addActionListener((e)->{

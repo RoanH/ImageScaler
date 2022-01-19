@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Path;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -94,9 +95,9 @@ public class FolderSelector extends JPanel implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		File file = Dialog.showFolderOpenDialog();
+		Path file = Dialog.showFolderOpenDialog();
 		if(file != null){
-			field.setText(file.getAbsolutePath());
+			field.setText(file.toAbsolutePath().toString());
 		}
 	}
 }

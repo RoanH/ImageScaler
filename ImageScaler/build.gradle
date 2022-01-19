@@ -38,7 +38,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'dev.roanh.util:util:2.0'
+	implementation 'dev.roanh.util:util:2.1'
 	implementation "com.twelvemonkeys.imageio:imageio-bmp:3.8.1"
 	implementation "com.twelvemonkeys.imageio:imageio-jpeg:3.8.1"
 	implementation "com.twelvemonkeys.imageio:imageio-tiff:3.8.1"
