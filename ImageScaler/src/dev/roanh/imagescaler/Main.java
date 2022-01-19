@@ -44,6 +44,10 @@ import dev.roanh.util.Util;
  * @author Roan
  */
 public class Main{
+	/**
+	 * Active worker currently scaling images.
+	 */
+	private static Worker worker = null;
 
 	/**
 	 * Starts the program and shows the GUI
@@ -224,12 +228,14 @@ public class Main{
 		controls.add(pause);
 		
 		pause.addActionListener((e)->{
-			if(Worker.running){
-				Worker.running = false;
-				pause.setText("Resume");
-			}else{
-				Worker.running = true;
-				pause.setText("Pause");
+			if(worker != null){
+				if(worker.isRunning()){
+					worker.setRunning(false);
+					pause.setText("Resume");
+				}else{
+					worker.setRunning(true);
+					pause.setText("Pause");
+				}
 			}
 		});
 		
@@ -285,7 +291,7 @@ public class Main{
 				}
 
 				try{
-					final int total = Worker.prepare(
+					Worker worker = new Worker(
 						inputDir,
 						outputDir,
 						subdir.isSelected(),
@@ -298,23 +304,23 @@ public class Main{
 						(double)scalef.getValue()
 					);
 					
-					if(total == 0){
+					if(worker.getWorkloadSize() == 0){
 						ptext.setText("No files to rescale");
 						bar.setMaximum(1);
 						bar.setValue(1);
 						return;
 					}
-					bar.setMaximum(total);
+					bar.setMaximum(worker.getWorkloadSize());
 					bar.setValue(0);
 
 					enableFun.accept(false);
 
 					List<String> exceptions = new ArrayList<String>(0);
-					Worker.start((int)threads.getValue(), new ProgressListener(){
+					worker.start((int)threads.getValue(), new ProgressListener(){
 						@Override
 						public void progress(int completed){
 							bar.setValue(completed);
-							ptext.setText(completed + "/" + total);
+							ptext.setText(completed + "/" + worker.getWorkloadSize());
 							progress.repaint();
 						}
 

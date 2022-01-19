@@ -33,48 +33,44 @@ public class Worker{
 	/**
 	 * Number of images that have been scaled so far
 	 */
-	protected static final AtomicInteger completed = new AtomicInteger(0);
+	private final AtomicInteger completed = new AtomicInteger(0);
 	/**
 	 * Whether or not we are currently running or paused
 	 */
-	protected static volatile boolean running = false;
+	private volatile boolean running = false;
 	/**
 	 * The directory to write rescaled images to
 	 */
-	protected static Path outputDir;
+	private static Path outputDir;
 	/**
 	 * The directory to search for images to rescale
 	 */
-	protected static Path inputDir;
+	private Path inputDir;
 	/**
 	 * List of files to scale
 	 */
-	private static List<Path> files;
+	private List<Path> files;
 	/**
 	 * Regex that is used on all file names to optionally modify them
 	 */
-	private static Pattern renameRegex;
-	/**
-	 * List of file extensions that is used to match the files to convert.
-	 */
-	private static String[] extensions;
+	private Pattern renameRegex;
 	/**
 	 * Replacement string for file name parts
 	 * matched by the {@link #renameRegex} regex.
 	 */
-	private static String renameReplace;
+	private String renameReplace;
 	/**
 	 * The factor to scale the input images by
 	 */
-	protected static double scale;
+	protected double scale;
 	/**
 	 * Whether or not to overwrite existing files
 	 */
-	protected static boolean overwrite;
+	protected boolean overwrite;
 	/**
 	 * The scaling algorithm that is used
 	 */
-	protected static ScalingMode mode;
+	protected ScalingMode mode;
 
 	/**
 	 * Reads the list of images to rescale
@@ -91,21 +87,17 @@ public class Worker{
 	 * @param overwrite 
 	 * @param mode 
 	 * @param scale 
-	 * @return The number of images that
-	 *         are going to be rescaled
 	 * @throws IOException 
 	 */
-	public static final int prepare(Path input, Path output, boolean subdirs, Pattern matchRegex, Pattern renameRegex, String replacement, String[] extensions, boolean overwrite, ScalingMode mode, double scale) throws IOException{
+	public Worker(Path input, Path output, boolean subdirs, Pattern matchRegex, Pattern renameRegex, String replacement, String[] extensions, boolean overwrite, ScalingMode mode, double scale) throws IOException{
 		inputDir = input;
 		outputDir = output;
-		Worker.renameRegex = renameRegex;
-		Worker.extensions = extensions;
 		renameReplace = replacement;
-		Worker.overwrite = overwrite;
-		Worker.mode = mode;
-		Worker.scale = scale;
+		this.renameRegex = renameRegex;
+		this.overwrite = overwrite;
+		this.mode = mode;
+		this.scale = scale;
 		
-		files.clear();
 		if(Files.isDirectory(input)){
 			Files.find(input, subdirs ? Integer.MAX_VALUE : 1, (path, attr)->{
 				if(attr.isRegularFile()){
@@ -132,16 +124,35 @@ public class Worker{
 				outputDir = inputDir;
 			}
 		}
+	}
+	
+	public int getWorkloadSize(){
 		return files.size();
 	}
+	
+	/**
+	 * Sets whether the working is currently processing files.
+	 * @param shouldRun True if the worker should process files.
+	 */
+	public final void setRunning(boolean shouldRun){
+		running = shouldRun;
+	}
 
+	/**
+	 * Checks if the worker is currently running and processing files.
+	 * @return True if the worker is currently processing files.
+	 */
+	public boolean isRunning(){
+		return running;
+	}
+	
 	/**
 	 * Starts the threads and rescales all the images.
 	 * @param threads Number of rescale threads to use.
 	 * @param listener The ProgressListener to notify of
 	 *        any progress that's made.
 	 */
-	public static final void start(int threads, ProgressListener listener){
+	public final void start(int threads, ProgressListener listener){
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
 		completed.set(0);
 		running = true;
@@ -192,37 +203,12 @@ public class Worker{
 	}
 
 	/**
-	 * Simple interface that gets called when progress was made.
-	 * @author Roan
-	 */
-	protected static abstract interface ProgressListener{
-		
-		/**
-		 * Called when progress was made.
-		 * @param completed Total number of files completed so far.
-		 */
-		public abstract void progress(int completed);
-		
-		/**
-		 * Called when an error occurred.
-		 * @param file The file that caused the error.
-		 * @param e The exception.
-		 */
-		public abstract void error(Path file, Exception e);
-		
-		/**
-		 * Called when all files have finished processing.
-		 */
-		public abstract void done();
-	}
-
-	/**
 	 * Rescales the given image in accordance with the
 	 * selected options.
 	 * @param file The image to rescale.
 	 * @throws IOException When an IOException occurs.
 	 */
-	private static final void scale(Path file) throws IOException{
+	private final void scale(Path file) throws IOException{
 		Path relative = inputDir.relativize(file);
 		String name = relative.getFileName().toString();
 		int dot = name.lastIndexOf('.');
@@ -265,5 +251,30 @@ public class Worker{
 				}
 			}
 		}
+	}
+
+	/**
+	 * Simple interface that gets called when progress was made.
+	 * @author Roan
+	 */
+	public static abstract interface ProgressListener{
+		
+		/**
+		 * Called when progress was made.
+		 * @param completed Total number of files completed so far.
+		 */
+		public abstract void progress(int completed);
+		
+		/**
+		 * Called when an error occurred.
+		 * @param file The file that caused the error.
+		 * @param e The exception.
+		 */
+		public abstract void error(Path file, Exception e);
+		
+		/**
+		 * Called when all files have finished processing.
+		 */
+		public abstract void done();
 	}
 }
