@@ -34,7 +34,7 @@ repositories{
 			url "$nexusPublic"
 		}
 	}
-	jcenter()
+	mavenCentral()
 }
 
 dependencies{
