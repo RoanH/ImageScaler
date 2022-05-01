@@ -44,7 +44,7 @@ public class Worker{
 	/**
 	 * The directory to write rescaled images to
 	 */
-	private static Path outputDir;
+	private Path outputDir;
 	/**
 	 * The directory to search for images to rescale
 	 */
